@@ -1,4 +1,4 @@
-# Lab3
+# AnimalSim
 
 Niestety nie do końca wiem o co chodziło w feedbacku który otrzymałem do Lab2:
 "1. Nazwa pakietu jest z kropkami, ale mapuje się ona na kolejne podkatalogi."
