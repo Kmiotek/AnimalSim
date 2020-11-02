@@ -1,4 +1,4 @@
-package agh.cs.lab3;
+package agh.cs.animalsim;
 
 public enum MoveDirection {
 

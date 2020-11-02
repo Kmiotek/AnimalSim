@@ -1,19 +1,49 @@
-package agh.cs.lab3;
+package agh.cs.animalsim;
 
 public class Animal {
     private Vector2d position;
     private MapDirection direction;
+    private IWorldMap mapThatImOn;
 
     private Vector2d leftDownBound = new Vector2d(-1,-1);
     private Vector2d rightUpBound = new Vector2d(5,5);
 
 
-    public Animal(){
-        position = new Vector2d(2,2);
+    public Animal(IWorldMap map, Vector2d initialPosition){
+        mapThatImOn = map;
+        if(map.canMoveTo(initialPosition)) {
+            position = new Vector2d(initialPosition);
+        } else {
+            position = new Vector2d(-1,-1);
+        }
+
         direction = MapDirection.NORTH;
     }
 
+    public Animal(IWorldMap map){
+        this(map, new Vector2d(2,2));
+    }
+
+    public Animal(){
+        this(null);
+    }
+
     public String toString(){
+        switch (direction){
+            case NORTH:
+                return "^";
+            case SOUTH:
+                return "v";
+            case WEST:
+                return "<";
+            case EAST:
+                return ">";
+            default:
+                return "o";
+        }
+    }
+
+    public String getStatus(){
         return ("Pozycja: " + position.toString() + ", kierunek: " + direction.toString());
     }
 
@@ -25,7 +55,7 @@ public class Animal {
         return direction;
     }
 
-    public Vector2d move(MoveDirection dir){
+    public void move(MoveDirection dir){
         Vector2d newPosition = position;
         switch (dir){
             case FORWARD:
@@ -41,11 +71,10 @@ public class Animal {
                 direction = direction.next();
                 break;
             default:
-                System.out.println("We're f... fine?");
+                System.out.println("We're fu... fine?");
         }
-        if(newPosition.follows(leftDownBound) && newPosition.precedes(rightUpBound)){
-            position = new Vector2d(newPosition.x, newPosition.y);
+        if(mapThatImOn.canMoveTo(newPosition)){
+            position = newPosition;
         }
-        return position;
     }
 }
