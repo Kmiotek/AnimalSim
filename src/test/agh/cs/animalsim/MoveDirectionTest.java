@@ -1,4 +1,4 @@
-package agh.cs.lab3;
+package agh.cs.animalsim;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

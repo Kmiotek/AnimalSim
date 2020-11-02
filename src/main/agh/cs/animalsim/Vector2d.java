@@ -1,4 +1,6 @@
-package agh.cs.lab3;
+package agh.cs.animalsim;
+
+import java.util.Objects;
 
 public class Vector2d {
     final public int x;
@@ -8,6 +10,10 @@ public class Vector2d {
     public Vector2d(int x, int y){
         this.x = x;
         this.y = y;
+    }
+
+    public Vector2d(Vector2d other){
+        this(other.x, other.y);
     }
 
     public boolean equals(Object other){
@@ -22,6 +28,11 @@ public class Vector2d {
         return false;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
+    }
+
     public String toString(){
         return "(" + this.x + "," + this.y + ")";
     }
@@ -33,8 +44,22 @@ public class Vector2d {
         return false;
     }
 
+    public boolean weakPrecedes(Vector2d other){
+        if(other.x >= this.x && other.y >= this.y){
+            return true;
+        }
+        return false;
+    }
+
     public boolean follows(Vector2d other){
         if(other.x < this.x && other.y < this.y){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean weakFollows(Vector2d other){
+        if(other.x <= this.x && other.y <= this.y){
             return true;
         }
         return false;
