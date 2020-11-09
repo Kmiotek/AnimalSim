@@ -11,21 +11,12 @@ public class Animal {
 
     public Animal(IWorldMap map, Vector2d initialPosition){
         mapThatImOn = map;
-        if(map.canMoveTo(initialPosition)) {
-            position = new Vector2d(initialPosition);
-        } else {
-            position = new Vector2d(-1,-1);
-        }
-
+        position = new Vector2d(initialPosition);
         direction = MapDirection.NORTH;
     }
 
     public Animal(IWorldMap map){
         this(map, new Vector2d(2,2));
-    }
-
-    public Animal(){
-        this(null);
     }
 
     public String toString(){
