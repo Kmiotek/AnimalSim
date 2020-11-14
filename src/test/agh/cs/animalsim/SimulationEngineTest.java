@@ -5,8 +5,9 @@ import org.junit.jupiter.api.Test;
 
 public class SimulationEngineTest {
 
+
     @Test
-    public void run_simpleTest(){
+    public void run_SimpleTest_RectangularMap(){
         Vector2d[] positions = { new Vector2d(2,2)};
         RectangularWorldMap map =  new RectangularWorldMap(10,5);
         SimulationEngine simulation = new SimulationEngine(null, map, positions);
@@ -23,7 +24,7 @@ public class SimulationEngineTest {
     }
 
     @Test
-    public void run_MoveDistributionTest(){
+    public void run_MoveDistributionTest_RectangularMap(){
         MoveDirection[] moves = OptionsParser.parse(new String[]{"f", "b", "r", "f"});
         Vector2d[] positions = { new Vector2d(2,2), new Vector2d(3,4), new Vector2d(3,2)};
         RectangularWorldMap map =  new RectangularWorldMap(10,5);
@@ -41,7 +42,7 @@ public class SimulationEngineTest {
     }
 
     @Test
-    public void run_ComplexTest(){
+    public void run_ComplexTest_RectangularMap(){
         MoveDirection[] moves = OptionsParser.parse(new String[]{"f", "b", "r", "f", "b", "f", "f"});
         Vector2d[] positions = { new Vector2d(2,2), new Vector2d(3,4), new Vector2d(3,2)};
         RectangularWorldMap map =  new RectangularWorldMap(10,5);
