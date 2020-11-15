@@ -4,12 +4,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GrassField implements IWorldMap{
+public class GrassField extends AbstractWorldMap{
 
-    private ArrayList<IMapElement> map;
-    private Vector2d lowerLeftCorner;
-    private Vector2d upperRightCorner;
-    private MapVisualizer myVisualizer;
+
 
     public GrassField(int grass){
         map = new ArrayList<>();
@@ -39,7 +36,7 @@ public class GrassField implements IWorldMap{
     @Override
     public boolean canMoveTo(Vector2d position) {
         if (!isOccupied(position)){
-            return false;
+            return true;
         }
         return objectAt(position).getCollisionPriority() < 1;
     }
@@ -66,13 +63,6 @@ public class GrassField implements IWorldMap{
         return false;
     }
 
-    @Override
-    public void callOnCollision(Vector2d position) {
-        if(isOccupied(position)){
-            objectAt(position).onCollision();
-        }
-    }
-
     public int numberOfPositionsOccupiedInSquare(Vector2d lowerLeft, Vector2d upperRight) {
         Set<Vector2d> names = new HashSet<>();
         for (IMapElement el : map) {
@@ -81,16 +71,6 @@ public class GrassField implements IWorldMap{
             }
         }
         return names.size();
-    }
-
-    public int numberOfPositionsOccupied(){
-        return numberOfPositionsOccupiedInSquare(lowerLeftCorner, upperRightCorner);
-    }
-
-
-    @Override
-    public boolean isOccupied(Vector2d position) {
-        return objectAt(position) != null;
     }
 
     @Override
@@ -102,10 +82,5 @@ public class GrassField implements IWorldMap{
             }
         }
         return current;
-    }
-
-    public String toString(){
-        setBounds();
-        return myVisualizer.draw(lowerLeftCorner, upperRightCorner);
     }
 }

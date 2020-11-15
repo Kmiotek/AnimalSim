@@ -70,8 +70,8 @@ public class GrassFieldTest {
         map.place(new Animal(map, poz));
         Assertions.assertFalse(map.canMoveTo(poz));
         Assertions.assertTrue(map.canMoveTo(poz3));
-        Assertions.assertFalse(map.canMoveTo(new Vector2d(-1, 0)));
-        Assertions.assertFalse(map.canMoveTo(new Vector2d(10,10)));
+        Assertions.assertTrue(map.canMoveTo(new Vector2d(-1, 0)));
+        Assertions.assertTrue(map.canMoveTo(new Vector2d(10,10)));
     }
 
     @Test
