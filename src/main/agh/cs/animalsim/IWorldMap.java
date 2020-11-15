@@ -14,8 +14,12 @@ public interface IWorldMap {
      * @param position
      *            The position checked for the movement possibility.
      * @return True if the object can move to that position.
+     *
+     * This now assumes priority of the object = 1 - Jakub Kmiecik
      */
     boolean canMoveTo(Vector2d position);
+
+    boolean canThisMoveTo(Vector2d position, IMapElement object);
 
     /**
      * Place a animal on the map.
@@ -25,6 +29,10 @@ public interface IWorldMap {
      * @return True if the animal was placed. The animal cannot be placed if the map is already occupied.
      */
     boolean place(Animal animal);
+
+    boolean placeAnyObject(IMapElement object);
+
+    void callOnCollision(Vector2d position);
 
     /**
      * Return true if given position on the map is occupied. Should not be
@@ -44,5 +52,5 @@ public interface IWorldMap {
      *            The position of the object.
      * @return Object or null if the position is not occupied.
      */
-    Object objectAt(Vector2d position);
+    IMapElement objectAt(Vector2d position);
 }

@@ -26,6 +26,9 @@ public class SimulationEngine implements IEngine{
     @Override
     public void run() {
         int currentAnimal = 0;
+        if(moves == null){
+            return;
+        }
         for (MoveDirection move : moves) {
             animals.get(currentAnimal).move(move);
             currentAnimal = (currentAnimal + 1) % numberOfAnimals;  //this makes sure that every animal gets the correct moves

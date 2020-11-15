@@ -1,9 +1,10 @@
 package agh.cs.animalsim;
 
-public class Animal {
+public class Animal implements  IMapElement{
     private Vector2d position;
     private MapDirection direction;
     private IWorldMap mapThatImOn;
+    private int size;
 
     private Vector2d leftDownBound = new Vector2d(-1,-1);
     private Vector2d rightUpBound = new Vector2d(5,5);
@@ -13,10 +14,19 @@ public class Animal {
         mapThatImOn = map;
         position = new Vector2d(initialPosition);
         direction = MapDirection.NORTH;
+        size = 1;
     }
 
     public Animal(IWorldMap map){
         this(map, new Vector2d(2,2));
+    }
+
+    public boolean canCollide(){
+        return true;
+    }
+
+    public void onCollision(){
+        move(MoveDirection.FORWARD);
     }
 
     public String toString(){
@@ -36,6 +46,11 @@ public class Animal {
 
     public String getStatus(){
         return ("Pozycja: " + position.toString() + ", kierunek: " + direction.toString());
+    }
+
+    @Override
+    public int getCollisionPriority() {
+        return size;
     }
 
     public Vector2d getPosition(){
@@ -64,7 +79,8 @@ public class Animal {
             default:
                 System.out.println("We're fu... fine?");
         }
-        if(mapThatImOn.canMoveTo(newPosition)){
+        if(mapThatImOn.canThisMoveTo(newPosition, this)){
+            mapThatImOn.callOnCollision(newPosition);
             position = newPosition;
         }
     }
