@@ -76,7 +76,7 @@ public class GrassField implements IWorldMap{
     public int numberOfPositionsOccupiedInSquare(Vector2d lowerLeft, Vector2d upperRight) {
         Set<Vector2d> names = new HashSet<>();
         for (IMapElement el : map) {
-            if (el.getPosition().follows(lowerLeft) && el.getPosition().precedes(upperRight)) {
+            if (el.getPosition().follows(lowerLeft.subtract(new Vector2d(1, 1))) && el.getPosition().precedes(upperRight.add(new Vector2d(1, 1)))) {
                 names.add(el.getPosition());
             }
         }

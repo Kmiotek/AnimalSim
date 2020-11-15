@@ -22,15 +22,26 @@ public class VectorRandomizer {
     public Vector2d randomVectorInRangeSmart(Vector2d lowerLeft, Vector2d upperRight){
         GrassField map = (GrassField) (this.map);
         map.setBounds();
-        int number = map.numberOfPositionsOccupied();
-        int x = ThreadLocalRandom.current().nextInt(lowerLeft.x, upperRight.x + 1 - number);
-        int y = ThreadLocalRandom.current().nextInt(lowerLeft.y, upperRight.y + 1 - number);
-        int tmp = map.numberOfPositionsOccupiedInSquare(lowerLeft, upperRight);
-        x += tmp;
-        y += tmp;
-        while(map.isOccupied(new Vector2d(x,y))){
-            x++;
-            y++;
+        int taken = map.numberOfPositionsOccupiedInSquare(lowerLeft, upperRight);
+        int total = (Math.abs(lowerLeft.x - upperRight.x) + 1) * (Math.abs(lowerLeft.y - upperRight.y) + 1);
+        int number = total - taken;
+        int ignore = ThreadLocalRandom.current().nextInt(0, number);
+        int x = lowerLeft.x;
+        int y = lowerLeft.y;
+        while(true){
+            if (!map.isOccupied(new Vector2d(x,y))){
+                if (ignore > 0){
+                    ignore--;
+                } else {
+                    break;
+                }
+            }
+            if (x < upperRight.x){
+                x++;
+            } else {
+                y++;
+                x = lowerLeft.x;
+            }
         }
         return new Vector2d(x,y);
     }

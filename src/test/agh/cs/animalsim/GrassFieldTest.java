@@ -130,4 +130,36 @@ public class GrassFieldTest {
         Assertions.assertEquals(state, map.toString());
     }
 
+    @Test
+    public void movementTest(){
+        String state = " y\\x 10" + System.lineSeparator() +
+                "-10: ---" + System.lineSeparator() +
+                "-11: |*|" + System.lineSeparator() +
+                "-12: ---" + System.lineSeparator();
+        GrassField map = new GrassField(0);
+        map.placeAnyObject(new Grass(map, new Vector2d(10,-11)));
+        Assertions.assertEquals(state, map.toString());
+        state = " y\\x 10" + System.lineSeparator() +
+                "-10: ---" + System.lineSeparator() +
+                "-11: |^|" + System.lineSeparator() +
+                "-12: ---" + System.lineSeparator();
+        Animal giraffe = new Animal(map, new Vector2d(10,-11));
+        map.placeAnyObject(giraffe);
+        Assertions.assertEquals(state, map.toString());
+        giraffe.move(MoveDirection.FORWARD);
+        state = " y\\x 10" + System.lineSeparator() +
+                " -9: ---" + System.lineSeparator() +
+                "-10: |^|" + System.lineSeparator() +
+                "-11: |*|" + System.lineSeparator() +
+                "-12: ---" + System.lineSeparator();
+        Assertions.assertEquals(state, map.toString());
+        giraffe.move(MoveDirection.RIGHT);
+        state = " y\\x 10" + System.lineSeparator() +
+                " -9: ---" + System.lineSeparator() +
+                "-10: |>|" + System.lineSeparator() +
+                "-11: |*|" + System.lineSeparator() +
+                "-12: ---" + System.lineSeparator();
+        Assertions.assertEquals(state, map.toString());
+    }
+
 }
