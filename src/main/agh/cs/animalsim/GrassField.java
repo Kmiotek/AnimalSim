@@ -1,18 +1,17 @@
 package agh.cs.animalsim;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 public class GrassField extends AbstractWorldMap{
 
-
+    private Vector2d upperRightCorner;
+    private Vector2d lowerLeftCorner;
 
     public GrassField(int grass){
-        map = new ArrayList<>();
-        myVisualizer = new MapVisualizer(this);
+        super();
         for (int i =0;i<grass;i++){
-            map.add(new Grass(this, new Vector2d(0,0), (int) Math.sqrt(grass*10)));
+            placeAnyObject(new Grass(this, new Vector2d(0,0), (int) Math.sqrt(grass*10)));
         }
         setBounds();
     }
@@ -23,14 +22,32 @@ public class GrassField extends AbstractWorldMap{
             upperRightCorner = new Vector2d(0,0);
             return;
         }
-        Vector2d low = new Vector2d(map.get(0).getPosition());
-        Vector2d high = new Vector2d(map.get(0).getPosition());
-        for (IMapElement a : map) {
-            low = low.lowerLeft(a.getPosition());
-            high = high.upperRight(a.getPosition());
+        Vector2d b = map.keySet().iterator().next();
+        Vector2d low = new Vector2d(b);
+        Vector2d high = new Vector2d(b);
+        for (Vector2d a : map.keySet()) {
+            low = low.lowerLeft(a);
+            high = high.upperRight(a);
         }
         lowerLeftCorner = low;
         upperRightCorner = high;
+    }
+
+    public void updateBounds(Vector2d vec){
+        if (!(vec.weakPrecedes(upperRightCorner) && vec.weakFollows(lowerLeftCorner))){
+            upperRightCorner = upperRightCorner.upperRight(vec);
+            lowerLeftCorner = lowerLeftCorner.lowerLeft(vec);
+        }
+    }
+
+    @Override
+    protected Vector2d lowerLeftCorner(){
+        return lowerLeftCorner;
+    }
+
+    @Override
+    protected Vector2d upperRightCorner(){
+        return upperRightCorner;
     }
 
     @Override
@@ -49,25 +66,12 @@ public class GrassField extends AbstractWorldMap{
         return objectAt(position).getCollisionPriority() < object.getCollisionPriority();
     }
 
-    @Override
-    public boolean place(Animal animal) {
-        return placeAnyObject(animal);
-    }
-
-    @Override
-    public boolean placeAnyObject(IMapElement object){
-        if (canThisMoveTo(object.getPosition(), object)){
-            map.add(object);
-            return true;
-        }
-        return false;
-    }
 
     public int numberOfPositionsOccupiedInSquare(Vector2d lowerLeft, Vector2d upperRight) {
         Set<Vector2d> names = new HashSet<>();
-        for (IMapElement el : map) {
-            if (el.getPosition().follows(lowerLeft.subtract(new Vector2d(1, 1))) && el.getPosition().precedes(upperRight.add(new Vector2d(1, 1)))) {
-                names.add(el.getPosition());
+        for (Vector2d el : map.keySet()) {
+            if (el.weakFollows(lowerLeft) && el.weakPrecedes(upperRight)) {
+                names.add(el);
             }
         }
         return names.size();
@@ -75,10 +79,16 @@ public class GrassField extends AbstractWorldMap{
 
     @Override
     public IMapElement objectAt(Vector2d position) {
+        Set<IMapElement> set = map.get(position);
+        if (set == null){
+            return null;
+        }
         IMapElement current = null;
-        for (IMapElement a : map) {
-            if(a.getPosition().equals(position) && (current == null || current.getCollisionPriority() < a.getCollisionPriority())){
-                current = a;
+        int currentPriority = -1;
+        for (IMapElement el : set) {
+            if (el.getCollisionPriority() > currentPriority){
+                current = el;
+                currentPriority = el.getCollisionPriority();
             }
         }
         return current;

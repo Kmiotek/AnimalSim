@@ -1,32 +1,31 @@
 package agh.cs.animalsim;
 
-public class Animal implements  IMapElement{
-    private Vector2d position;
-    private MapDirection direction;
-    private IWorldMap mapThatImOn;
-    private int size;
+public class Animal extends AbstractMapElement{
+    protected MapDirection direction;
+    protected float energy;
+    protected float energyRequiredToLive;
+    protected int speed;
+    protected int vision;
+    protected boolean carnivore;
 
-    private Vector2d leftDownBound = new Vector2d(-1,-1);
-    private Vector2d rightUpBound = new Vector2d(5,5);
 
 
     public Animal(IWorldMap map, Vector2d initialPosition){
-        mapThatImOn = map;
-        position = new Vector2d(initialPosition);
+        super(map, initialPosition);
         direction = MapDirection.NORTH;
-        size = 1;
     }
 
     public Animal(IWorldMap map){
         this(map, new Vector2d(2,2));
     }
 
-    public boolean canCollide(){
-        return true;
+
+    public void collisionWithHerbivore(){
+        move(MoveDirection.FORWARD);
     }
 
-    public void onCollision(){
-        move(MoveDirection.FORWARD);
+    public void collisionWithCarnivore(){
+        energy = 0;     // delete me - probably through observer
     }
 
     public String toString(){
@@ -46,15 +45,6 @@ public class Animal implements  IMapElement{
 
     public String getStatus(){
         return ("Pozycja: " + position.toString() + ", kierunek: " + direction.toString());
-    }
-
-    @Override
-    public int getCollisionPriority() {
-        return size;
-    }
-
-    public Vector2d getPosition(){
-        return position;
     }
 
     public MapDirection getDirection(){
@@ -80,8 +70,18 @@ public class Animal implements  IMapElement{
                 System.out.println("We're fu... fine?");
         }
         if(mapThatImOn.canThisMoveTo(newPosition, this)){
-            mapThatImOn.callOnCollision(newPosition);
+            Vector2d oldPosition = position;
             position = newPosition;
+            updateObservers(oldPosition);
+        }
+    }
+
+
+    private void onMove(){
+        if (carnivore){
+            observer.callCollisionWithCarnivore(position);
+        } else {
+            observer.callCollisionWithHerbivore(position);
         }
     }
 }

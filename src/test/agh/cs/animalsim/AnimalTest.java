@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Test;
 public class AnimalTest {
     @Test
     public void simpleMoveTest(){
-        Animal hedgehog = new Animal(new RectangularWorldMap());
+        IWorldMap mape = new RectangularWorldMap(7,7);
+        Animal hedgehog = new Animal(mape);
+        mape.place(hedgehog);
         Assertions.assertEquals("Pozycja: (2,2), kierunek: Północ", hedgehog.getStatus());
         hedgehog.move(MoveDirection.FORWARD);
         Assertions.assertEquals("Pozycja: (2,3), kierunek: Północ", hedgehog.getStatus());
@@ -20,7 +22,9 @@ public class AnimalTest {
 
     @Test
     public void complexMoveTest(){
-        Animal hedgehog = new Animal(new RectangularWorldMap());
+        IWorldMap mape = new RectangularWorldMap(5,5);
+        Animal hedgehog = new Animal(mape);
+        mape.place(hedgehog);
         Assertions.assertEquals("Pozycja: (2,2), kierunek: Północ", hedgehog.getStatus());
         hedgehog.move(MoveDirection.FORWARD);
         Assertions.assertEquals("Pozycja: (2,3), kierunek: Północ", hedgehog.getStatus());
@@ -59,7 +63,9 @@ public class AnimalTest {
 
     @Test
     public void boundariesMoveTest(){
-        Animal hedgehog = new Animal(new RectangularWorldMap(7,7));
+        IWorldMap mape = new RectangularWorldMap(7,7);
+        Animal hedgehog = new Animal(mape);
+        mape.place(hedgehog);
         for (int i =0;i<10;i++){
             hedgehog.move(MoveDirection.FORWARD);
         }
@@ -85,6 +91,7 @@ public class AnimalTest {
         RectangularWorldMap map = new RectangularWorldMap();
         map.place(new Animal(map, new Vector2d(2,3)));
         Animal hedgehog = new Animal(map);
+        map.place(hedgehog);
         Assertions.assertEquals("Pozycja: (2,2), kierunek: Północ", hedgehog.getStatus());
         hedgehog.move(MoveDirection.FORWARD);
         Assertions.assertEquals("Pozycja: (2,2), kierunek: Północ", hedgehog.getStatus());

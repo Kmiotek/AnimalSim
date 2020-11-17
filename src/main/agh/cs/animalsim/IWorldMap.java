@@ -7,7 +7,7 @@ package agh.cs.animalsim;
  * @author apohllo
  *
  */
-public interface IWorldMap {
+public interface IWorldMap extends IPositionChangeObserver {
     /**
      * Indicate if any object can move to the given position.
      *
@@ -31,8 +31,6 @@ public interface IWorldMap {
     boolean place(Animal animal);
 
     boolean placeAnyObject(IMapElement object);
-
-    void callOnCollision(Vector2d position);
 
     /**
      * Return true if given position on the map is occupied. Should not be

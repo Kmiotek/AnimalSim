@@ -23,22 +23,7 @@ public class TallGrass extends Grass{
     }
 
     @Override
-    public int getCollisionPriority() {
-        return 0;
-    }
-
-    @Override
-    public Vector2d getPosition() {
-        return position;
-    }
-
-    @Override
-    public String getStatus() {
-        return position.toString();
-    }
-
-    @Override
-    public void onCollision() {
+    public void collisionWithHerbivore() {
         this.position = randomer.randomVectorInRangeSmart(randomMiddlePosition.subtract(new Vector2d(range, range)),
                 randomMiddlePosition.add(new Vector2d(range, range)));
     }
