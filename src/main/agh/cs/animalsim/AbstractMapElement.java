@@ -1,19 +1,21 @@
 package agh.cs.animalsim;
 
+
 import java.util.ArrayList;
 
 public abstract class AbstractMapElement implements IMapElement{
 
     protected Vector2d position;
     protected IWorldMap mapThatImOn;
+    protected ArrayList<IPositionChangeObserver> positionObservers;
+    protected ICollisionObserver collisionObserver;
     protected int size;
-    protected IPositionChangeObserver observer;
 
     public AbstractMapElement(IWorldMap map, Vector2d initialPosition){
+        positionObservers = new ArrayList<>();
         mapThatImOn = map;
         position = new Vector2d(initialPosition);
         size = 1;
-        observer = map;
     }
 
     public AbstractMapElement(IWorldMap map){
@@ -36,27 +38,49 @@ public abstract class AbstractMapElement implements IMapElement{
     }
 
     @Override
-    public void collisionWithHerbivore() {
-
+    public int collisionWithHerbivore() {
+        return 0;
     }
 
     @Override
-    public void collisionWithCarnivore() {
-
+    public int collisionWithCarnivore() {
+        return 0;
     }
 
     @Override
     public void updateObservers(Vector2d oldPosition) {
-        observer.positionChanged(oldPosition, this);
+        for (IPositionChangeObserver posObs : positionObservers) {
+            posObs.positionChanged(oldPosition, this);
+        }
     }
 
     @Override
-    public void addObserver(IPositionChangeObserver observer) {
-        this.observer =  observer;
+    public void registerPositionObserver(IPositionChangeObserver observer) {
+        this.positionObservers.add(observer);
     }
 
     @Override
-    public void setMap(IWorldMap map) {
-        mapThatImOn = map;
+    public void registerCollisionObserver(ICollisionObserver observer) {
+        this.collisionObserver = observer;
+    }
+
+    @Override
+    public int getDrawingSize(){
+        return 0;
+    }
+
+    @Override
+    public boolean isCarnivore(){
+        return false;
+    }
+
+    @Override
+    public boolean isGrassy() {
+        return false;
+    }
+
+    @Override
+    public void go(){
+
     }
 }

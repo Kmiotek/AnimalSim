@@ -5,65 +5,24 @@ import java.util.Set;
 
 public class GrassField extends AbstractWorldMap{
 
-    private Vector2d upperRightCorner;
-    private Vector2d lowerLeftCorner;
+    private MapBoundary boundaryCalculator;
 
     public GrassField(int grass){
         super();
+        boundaryCalculator = new MapBoundary();
         for (int i =0;i<grass;i++){
-            placeAnyObject(new Grass(this, new Vector2d(0,0), (int) Math.sqrt(grass*10)));
-        }
-        setBounds();
-    }
-
-    public void setBounds(){
-        if (map.size() < 1){
-            lowerLeftCorner = new Vector2d(0,0);
-            upperRightCorner = new Vector2d(0,0);
-            return;
-        }
-        Vector2d b = map.keySet().iterator().next();
-        Vector2d low = new Vector2d(b);
-        Vector2d high = new Vector2d(b);
-        for (Vector2d a : map.keySet()) {
-            low = low.lowerLeft(a);
-            high = high.upperRight(a);
-        }
-        lowerLeftCorner = low;
-        upperRightCorner = high;
-    }
-
-    public void updateBounds(Vector2d vec){
-        if (!(vec.weakPrecedes(upperRightCorner) && vec.weakFollows(lowerLeftCorner))){
-            upperRightCorner = upperRightCorner.upperRight(vec);
-            lowerLeftCorner = lowerLeftCorner.lowerLeft(vec);
+            placeAnyObject(new TallGrass(this, new Vector2d(0,0), (int) Math.sqrt(grass*3000)));
         }
     }
 
     @Override
-    protected Vector2d lowerLeftCorner(){
-        return lowerLeftCorner;
+    public Vector2d lowerLeftCorner(){
+        return boundaryCalculator.getLowerLeft();
     }
 
     @Override
-    protected Vector2d upperRightCorner(){
-        return upperRightCorner;
-    }
-
-    @Override
-    public boolean canMoveTo(Vector2d position) {
-        if (!isOccupied(position)){
-            return true;
-        }
-        return objectAt(position).getCollisionPriority() < 1;
-    }
-
-    @Override
-    public boolean canThisMoveTo(Vector2d position, IMapElement object) {
-        if (!isOccupied(position)){
-            return true;
-        }
-        return objectAt(position).getCollisionPriority() < object.getCollisionPriority();
+    public Vector2d upperRightCorner(){
+        return boundaryCalculator.getUpperRight();
     }
 
 
@@ -92,5 +51,17 @@ public class GrassField extends AbstractWorldMap{
             }
         }
         return current;
+    }
+
+    @Override
+    public boolean placeAnyObject(IMapElement object){
+        object.registerPositionObserver(boundaryCalculator);
+        boundaryCalculator.addElement(object);
+        return super.placeAnyObject(object);
+    }
+
+    @Override
+    public Set<IMapElement> objectsAt(Vector2d position) {
+        return map.get(position);
     }
 }

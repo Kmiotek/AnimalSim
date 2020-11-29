@@ -29,4 +29,14 @@ public class Grass extends AbstractMapElement{
         return position.toString();
     }
 
+    @Override
+    public int getDrawingSize(){
+        return 10;
+    }
+
+    @Override
+    public boolean isGrassy() {
+        return true;
+    }
+
 }

@@ -8,13 +8,21 @@ public interface IMapElement {
 
     String getStatus();
 
-    void collisionWithHerbivore();
+    int collisionWithHerbivore();
 
-    void collisionWithCarnivore();
+    int collisionWithCarnivore();
 
     void updateObservers(Vector2d oldPosition);
 
-    void addObserver(IPositionChangeObserver observer);
+    void registerPositionObserver(IPositionChangeObserver observer);
 
-    void setMap(IWorldMap map);
+    void registerCollisionObserver(ICollisionObserver observer);
+
+    int getDrawingSize();
+
+    boolean isCarnivore();
+
+    boolean isGrassy();
+
+    void go();
 }

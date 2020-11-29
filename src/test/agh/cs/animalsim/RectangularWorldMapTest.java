@@ -25,11 +25,11 @@ public class RectangularWorldMapTest {
     public void placeTest(){
         RectangularWorldMap map = new RectangularWorldMap(10, 10);
         Assertions.assertTrue(map.place((new Animal(map))));
-        Assertions.assertFalse(map.place((new Animal(map))));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> map.place((new Animal(map))));
         Assertions.assertTrue(map.place((new Animal(map, poz))));
-        Assertions.assertFalse(map.place(new Animal(map, new Vector2d(-1, 0))));
-        Assertions.assertFalse(map.place(new Animal(map, new Vector2d(0, 10))));
-        Assertions.assertFalse(map.place(new Animal(map, new Vector2d(10, 10))));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> map.place(new Animal(map, new Vector2d(-1, 0))));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> map.place(new Animal(map, new Vector2d(0, 10))));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> map.place(new Animal(map, new Vector2d(10, 10))));
         Assertions.assertTrue(map.place(new Animal(map, poz2)));
         Assertions.assertTrue(map.place(new Animal(map, new Vector2d(0, 0))));
     }

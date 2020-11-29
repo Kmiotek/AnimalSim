@@ -1,43 +1,55 @@
 package agh.cs.animalsim;
 
+import agh.cs.animalsim.swing.MapDisplayer;
+
 import java.util.*;
 
-public class AbstractWorldMap implements IWorldMap {
+public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver, ICollisionObserver {
 
     protected Map<Vector2d, Set<IMapElement>> map;
     protected MapVisualizer myVisualizer;
+    protected MapDisplayer displayer;
 
     protected Vector2d v_1_1;
 
     public AbstractWorldMap(){
         map = new LinkedHashMap<>();
         myVisualizer = new MapVisualizer(this);
+        displayer = new MapDisplayer(this);
         v_1_1 = new Vector2d(1,1);
+    }
+
+
+    @Override
+    public int callCollisionWithHerbivore(Vector2d position) {
+        if(isOccupied(position)){
+            return objectAt(position).collisionWithHerbivore();
+        }
+        return 0;
+    }
+
+    @Override
+    public int callCollisionWithCarnivore(Vector2d position) {
+        if(isOccupied(position)){
+            return objectAt(position).collisionWithCarnivore();
+        }
+        return 0;
     }
 
     @Override
     public boolean canMoveTo(Vector2d position) {
-        return false;
+        if (!isOccupied(position)){
+            return true;
+        }
+        return objectAt(position).getCollisionPriority() < 1;
     }
 
     @Override
     public boolean canThisMoveTo(Vector2d position, IMapElement object) {
-        return false;
-    }
-
-
-    @Override
-    public void callCollisionWithHerbivore(Vector2d position) {
-        if(isOccupied(position)){
-            objectAt(position).collisionWithHerbivore();
+        if (!isOccupied(position)){
+            return true;
         }
-    }
-
-    @Override
-    public void callCollisionWithCarnivore(Vector2d position) {
-        if(isOccupied(position)){
-            objectAt(position).collisionWithCarnivore();
-        }
+        return objectAt(position).getCollisionPriority() < object.getCollisionPriority();
     }
 
     @Override
@@ -45,10 +57,6 @@ public class AbstractWorldMap implements IWorldMap {
         return objectAt(position) != null;
     }
 
-    @Override
-    public IMapElement objectAt(Vector2d position) {
-        return null;
-    }
 
     @Override
     public boolean place(Animal animal) {
@@ -56,38 +64,51 @@ public class AbstractWorldMap implements IWorldMap {
     }
 
     @Override
-    public boolean placeAnyObject(IMapElement object){
-        if (canThisMoveTo(object.getPosition(), object)){
-            object.setMap(this);
-            object.addObserver(this);
-            if (map.containsKey(object.getPosition())){
-                map.get(object.getPosition()).add(object);
+    public Set<Vector2d> getObjectsPositions() {
+        return map.keySet();
+    }
+
+    protected boolean placeOnPosition(IMapElement object, Vector2d position){
+        if (canThisMoveTo(position, object)) {
+            object.registerPositionObserver(this);
+            object.registerCollisionObserver(this);
+            if (map.containsKey(position)) {
+                map.get(position).add(object);
             } else {
                 Set<IMapElement> n = new HashSet<>();
                 n.add(object);
-                map.put(object.getPosition(), n);
+                map.put(position, n);
             }
             return true;
         }
         return false;
     }
 
+    @Override
+    public boolean placeAnyObject(IMapElement object){
+        if (placeOnPosition(object, object.getPosition())){
+            return true;
+        }
+        throw new IllegalArgumentException("Position " + object.getPosition() + " is not available");
+    }
+
+    @Override
+    public void display() {
+        displayer.display(lowerLeftCorner(),upperRightCorner());
+    }
+
     public String toString(){
-        setBounds();
         return myVisualizer.draw(lowerLeftCorner(), upperRightCorner());
     }
 
-    protected Vector2d lowerLeftCorner(){
+    public Vector2d lowerLeftCorner(){
         return null;
     }
 
-    protected Vector2d upperRightCorner(){
+    public Vector2d upperRightCorner(){
         return null;
     }
 
-    public void setBounds(){
-
-    }
 
     @Override
     public void positionChanged(Vector2d oldPosition, IMapElement what) {

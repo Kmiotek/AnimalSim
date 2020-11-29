@@ -10,24 +10,26 @@ public class VectorRandomizer {
     }
 
     public Vector2d randomVectorInRangeStupid(Vector2d lowerLeft, Vector2d upperRight){    //this is just temporary
-        int x = ThreadLocalRandom.current().nextInt(lowerLeft.x, upperRight.x + 1);
-        int y = ThreadLocalRandom.current().nextInt(lowerLeft.y, upperRight.y + 1);
+        int x = ThreadLocalRandom.current().nextInt(lowerLeft.getX(), upperRight.getX() + 1);
+        int y = ThreadLocalRandom.current().nextInt(lowerLeft.getY(), upperRight.getY() + 1);
         while(!map.isOccupied(new Vector2d(x,y))) {
-            x = ThreadLocalRandom.current().nextInt(lowerLeft.x, upperRight.x + 1);
-            y = ThreadLocalRandom.current().nextInt(lowerLeft.y, upperRight.y + 1);
+            x = ThreadLocalRandom.current().nextInt(lowerLeft.getX(), upperRight.getX() + 1);
+            y = ThreadLocalRandom.current().nextInt(lowerLeft.getY(), upperRight.getY() + 1);
         }
         return new Vector2d(x,y);
     }
 
     public Vector2d randomVectorInRangeSmart(Vector2d lowerLeft, Vector2d upperRight){
         GrassField map = (GrassField) (this.map);
-        map.setBounds();
         int taken = map.numberOfPositionsOccupiedInSquare(lowerLeft, upperRight);
-        int total = (Math.abs(lowerLeft.x - upperRight.x) + 1) * (Math.abs(lowerLeft.y - upperRight.y) + 1);
+        int total = (Math.abs(lowerLeft.getX() - upperRight.getX()) + 1) * (Math.abs(lowerLeft.getY() - upperRight.getY()) + 1);
         int number = total - taken;
+        if (number < 1){
+            throw new IndexOutOfBoundsException("The square " + lowerLeft + " " + upperRight + " is full. Cannot find a free position inside to return for placement");
+        }
         int ignore = ThreadLocalRandom.current().nextInt(0, number);
-        int x = lowerLeft.x;
-        int y = lowerLeft.y;
+        int x = lowerLeft.getX();
+        int y = lowerLeft.getY();
         while(true){
             if (!map.isOccupied(new Vector2d(x,y))){
                 if (ignore > 0){
@@ -36,11 +38,11 @@ public class VectorRandomizer {
                     break;
                 }
             }
-            if (x < upperRight.x){
+            if (x < upperRight.getX()){
                 x++;
             } else {
                 y++;
-                x = lowerLeft.x;
+                x = lowerLeft.getX();
             }
         }
         return new Vector2d(x,y);

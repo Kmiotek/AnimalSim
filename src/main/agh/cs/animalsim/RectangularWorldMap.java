@@ -16,12 +16,12 @@ public class RectangularWorldMap extends AbstractWorldMap{
     }
 
     @Override
-    protected Vector2d lowerLeftCorner(){
+    public Vector2d lowerLeftCorner(){
         return new Vector2d(0,0);
     }
 
     @Override
-    protected Vector2d upperRightCorner(){
+    public Vector2d upperRightCorner(){
         return size.subtract(v_1_1);
     }
 
@@ -50,6 +50,11 @@ public class RectangularWorldMap extends AbstractWorldMap{
             return null;
         }
         return tmp.iterator().next();
+    }
+
+    @Override
+    public Set<IMapElement> objectsAt(Vector2d position) {
+        return map.get(position);
     }
 
 }

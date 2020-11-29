@@ -1,5 +1,7 @@
 package agh.cs.animalsim;
 
+import java.util.Set;
+
 /**
  * The interface responsible for interacting with the map of the world.
  * Assumes that Vector2d and MoveDirection classes are defined.
@@ -7,7 +9,7 @@ package agh.cs.animalsim;
  * @author apohllo
  *
  */
-public interface IWorldMap extends IPositionChangeObserver {
+public interface IWorldMap {
     /**
      * Indicate if any object can move to the given position.
      *
@@ -30,7 +32,15 @@ public interface IWorldMap extends IPositionChangeObserver {
      */
     boolean place(Animal animal);
 
+    Set<Vector2d> getObjectsPositions();
+
+    Vector2d lowerLeftCorner();
+
+    Vector2d upperRightCorner();
+
     boolean placeAnyObject(IMapElement object);
+
+    void display();
 
     /**
      * Return true if given position on the map is occupied. Should not be
@@ -51,4 +61,6 @@ public interface IWorldMap extends IPositionChangeObserver {
      * @return Object or null if the position is not occupied.
      */
     IMapElement objectAt(Vector2d position);
+
+    Set<IMapElement> objectsAt(Vector2d position);
 }
