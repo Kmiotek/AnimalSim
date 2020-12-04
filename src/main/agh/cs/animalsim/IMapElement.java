@@ -12,11 +12,15 @@ public interface IMapElement {
 
     int collisionWithCarnivore();
 
-    void updateObservers(Vector2d oldPosition);
+    void moved(Vector2d oldPosition);
 
     void registerPositionObserver(IPositionChangeObserver observer);
 
     void registerCollisionObserver(ICollisionObserver observer);
+
+    void registerDeathObserver(IDeathObserver observer);
+
+    void died();
 
     int getDrawingSize();
 

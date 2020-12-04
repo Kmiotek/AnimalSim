@@ -4,21 +4,38 @@ import agh.cs.animalsim.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
-public class Painter extends Canvas implements Runnable {
-    private IWorldMap map;
-    private Vector2d lowerLeft;
-    private Vector2d upperRight;
+public class Painter extends Canvas implements Runnable, ActionListener, ItemListener {
+    protected IWorldMap map;
+    protected Vector2d lowerLeft;
+    protected Vector2d upperRight;
+    protected TropicSimulation updater;
 
-    private final Color brown = new Color(69, 47, 15);
-    private final Color savanna = new Color(128, 123, 5);
+    protected final Color brown = new Color(69, 47, 15);
+    protected final Color savannaColor = new Color(128, 123, 5);
+    protected final Color jungleColor  = new Color(60, 100, 5);
 
-    private final int DELAY = 50;
-    private Thread animator;
+    private boolean running = true;
+    Thread animator;
 
-    public Painter(IWorldMap map){
+    public Painter(IWorldMap map, int numberOfHerbivores, int numberOfCarnivores, int amountOfGrass){
         this.map = map;
+        updater = new TropicSimulation(map);
+        for (int i =0;i<numberOfHerbivores;i++){
+            updater.createAnimal(false, 10, 10);
+        }
+        for (int i =0;i<numberOfCarnivores;i++){
+            updater.createAnimal(true, 10, 10);
+        }
+        for (int i =0;i<amountOfGrass;i++){
+            updater.createGrass();
+        }
     }
 
     public void setLowerLeft(Vector2d lowerLeft){
@@ -31,10 +48,10 @@ public class Painter extends Canvas implements Runnable {
 
     public void paint(Graphics g){
         setBackground(Color.WHITE);
-        g.setColor(savanna);
+        g.setColor(savannaColor);
         upperRight = map.upperRightCorner();
         lowerLeft = map.lowerLeftCorner();
-        g.fillRect(50, 50, upperRight.getX() - lowerLeft.getX(), upperRight.getY() - lowerLeft.getY());
+        g.fillRect(50, 50, upperRight.x - lowerLeft.x, upperRight.y - lowerLeft.y);
         for(Vector2d position : map.getObjectsPositions()){
             IMapElement object = map.objectAt(position);
             if (object instanceof Animal){
@@ -47,9 +64,9 @@ public class Painter extends Canvas implements Runnable {
                 g.setColor(Color.GREEN);
             }
             int size = object.getDrawingSize();
-            Vector2d newPos = object.getPosition().dualMod(map.upperRightCorner());
-            g.fillOval(newPos.getX() - size/2 - lowerLeft.getX() + 50,
-                    newPos.getY() - size/2 - lowerLeft.getY() + 50, size, size);
+            Vector2d newPos = object.getPosition().modulo(map.upperRightCorner());
+            g.fillOval(newPos.x - size/2 - lowerLeft.x + 50,
+                    newPos.y - size/2 - lowerLeft.y + 50, size, size);
         }
     }
 
@@ -69,17 +86,12 @@ public class Painter extends Canvas implements Runnable {
 
         while (true) {
 
-            ArrayList<IMapElement> elements = new ArrayList<>();
+            updater.update();
 
-            for (Vector2d element : map.getObjectsPositions()) {
-                elements.add(map.objectAt(element));
-            }
-            for (IMapElement element : elements) {
-                element.go();
-            }
             repaint();
 
             timeDiff = System.currentTimeMillis() - beforeTime;
+            int DELAY = 50;
             sleep = DELAY - timeDiff;
 
             if (sleep < 0) {
@@ -89,14 +101,31 @@ public class Painter extends Canvas implements Runnable {
             try {
                 Thread.sleep(sleep);
             } catch (InterruptedException e) {
+                break;
 
-                String msg = String.format("Thread interrupted: %s", e.getMessage());
-
-                JOptionPane.showMessageDialog(this, msg, "Error",
-                        JOptionPane.ERROR_MESSAGE);
+  //              String msg = String.format("Thread interrupted: %s", e.getMessage());
+//
+  //              JOptionPane.showMessageDialog(this, msg, "Error",
+//                        JOptionPane.ERROR_MESSAGE);
             }
 
             beforeTime = System.currentTimeMillis();
         }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if ("stop".equals(e.getActionCommand())) {
+            animator.interrupt();
+            running = !running;
+        }
+        if (running){
+            addNotify();
+        }
+    }
+
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+
     }
 }

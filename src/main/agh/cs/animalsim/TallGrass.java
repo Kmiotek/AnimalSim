@@ -27,7 +27,7 @@ public class TallGrass extends Grass{
         Vector2d old = position;
         this.position = randomer.randomVectorInRangeSmart(randomMiddlePosition.subtract(new Vector2d(range, range)),
                 randomMiddlePosition.add(new Vector2d(range, range)));
-        updateObservers(old);
-        return 100;
+        moved(old);
+        return 10000;
     }
 }

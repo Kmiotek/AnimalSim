@@ -8,11 +8,14 @@ public abstract class AbstractMapElement implements IMapElement{
     protected Vector2d position;
     protected IWorldMap mapThatImOn;
     protected ArrayList<IPositionChangeObserver> positionObservers;
-    protected ICollisionObserver collisionObserver;
+    protected ArrayList<ICollisionObserver> collisionObservers;
+    protected ArrayList<IDeathObserver> deathObservers;
     protected int size;
 
     public AbstractMapElement(IWorldMap map, Vector2d initialPosition){
         positionObservers = new ArrayList<>();
+        collisionObservers = new ArrayList<>();
+        deathObservers = new ArrayList<>();
         mapThatImOn = map;
         position = new Vector2d(initialPosition);
         size = 1;
@@ -44,11 +47,12 @@ public abstract class AbstractMapElement implements IMapElement{
 
     @Override
     public int collisionWithCarnivore() {
+        System.out.println("to");
         return 0;
     }
 
     @Override
-    public void updateObservers(Vector2d oldPosition) {
+    public void moved(Vector2d oldPosition) {
         for (IPositionChangeObserver posObs : positionObservers) {
             posObs.positionChanged(oldPosition, this);
         }
@@ -61,7 +65,19 @@ public abstract class AbstractMapElement implements IMapElement{
 
     @Override
     public void registerCollisionObserver(ICollisionObserver observer) {
-        this.collisionObserver = observer;
+        this.collisionObservers.add(observer);
+    }
+
+    @Override
+    public void registerDeathObserver(IDeathObserver observer){
+        this.deathObservers.add(observer);
+    }
+
+    @Override
+    public void died(){
+        for(IDeathObserver observer : deathObservers){
+            observer.died(this);
+        }
     }
 
     @Override

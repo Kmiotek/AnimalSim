@@ -1,7 +1,6 @@
 package agh.cs.animalsim;
 
-import javax.swing.*;
-import java.util.Scanner;
+import agh.cs.animalsim.swing.TropicSimulationEngine;
 
 public class World {
 
@@ -12,13 +11,11 @@ public class World {
     public static void main(String[] args) {
         try  {
             MoveDirection[] directions = OptionsParser.parse(args);
-            IWorldMap map = new TropicMap(500, 500, 5);
-            Vector2d[] positions = { new Vector2d(200,133), new Vector2d(30,4) };
-            IEngine engine = new SimulationEngine(directions, map, positions);
-            engine.run();
-            Animal fox = new Animal(map, new Vector2d(0,0), true, 7 );
-            map.place(fox);
-            map.display();
+            TropicMap map = new TropicMap(1600, 900, 800, 450);
+            TropicSimulationEngine engine = new TropicSimulationEngine(map, 10, 2, 20);
+            engine.start();
+            //Animal fox = new Animal(map, new Vector2d(0,0), true, 9 );
+            //map.place(fox);
         } catch(IllegalArgumentException ex) {
             System.out.println("Weź rzesz daj dobre dane następnym razem dobry panie " + ex.getMessage());
         }

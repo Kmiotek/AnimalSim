@@ -1,11 +1,10 @@
 package agh.cs.animalsim;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class GrassField extends AbstractWorldMap{
 
-    private MapBoundary boundaryCalculator;
+    private final MapBoundary boundaryCalculator;
 
     public GrassField(int grass){
         super();
@@ -25,16 +24,6 @@ public class GrassField extends AbstractWorldMap{
         return boundaryCalculator.getUpperRight();
     }
 
-
-    public int numberOfPositionsOccupiedInSquare(Vector2d lowerLeft, Vector2d upperRight) {
-        Set<Vector2d> names = new HashSet<>();
-        for (Vector2d el : map.keySet()) {
-            if (el.weakFollows(lowerLeft) && el.weakPrecedes(upperRight)) {
-                names.add(el);
-            }
-        }
-        return names.size();
-    }
 
     @Override
     public IMapElement objectAt(Vector2d position) {

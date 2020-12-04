@@ -12,14 +12,14 @@ public class TropicMapTest {
 
     @Test
     public void occupiedTest(){
-        TropicMap map = new TropicMap(6, 6, 5);
+        TropicMap map = new TropicMap(6, 6, 5, 5);
         Assertions.assertTrue(map.place(new Animal(map, v_2_3)));
         Assertions.assertTrue(map.isOccupied(v_2_3));
         Assertions.assertTrue(map.place(new Animal(map, v_9_9)));
         Assertions.assertTrue(map.isOccupied(v_9_9));
         Assertions.assertTrue(map.isOccupied(v_3_3));
         Assertions.assertTrue(map.place(new Animal(map, new Vector2d(-1,-1))));
-        System.out.println(new Vector2d(-1,-1).dualMod(v_3_3));
+        System.out.println(new Vector2d(-1,-1).modulo(v_3_3));
         Assertions.assertTrue(map.isOccupied(new Vector2d(5,5)));
         Assertions.assertFalse(map.isOccupied(new Vector2d(0,0)));
         Assertions.assertFalse(map.isOccupied(new Vector2d(0,7)));

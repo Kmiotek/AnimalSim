@@ -10,32 +10,32 @@ public class MapBoundary implements IPositionChangeObserver{
 
     public MapBoundary(){
         orderedByX = new TreeSet<>((el1, el2) -> {
-            if (el1.getPosition().getX() < el2.getPosition().getX()) {
+            if (el1.getPosition().x < el2.getPosition().x) {
                 return -1;
             }
-            if (el1.getPosition().getX() > el2.getPosition().getX()) {
+            if (el1.getPosition().x > el2.getPosition().x) {
                 return 1;
             }
-            if (el1.getPosition().getY() < el2.getPosition().getY()) {
+            if (el1.getPosition().y < el2.getPosition().y) {
                 return -1;
             }
-            if (el1.getPosition().getY() > el2.getPosition().getY()) {
+            if (el1.getPosition().y > el2.getPosition().y) {
                 return 1;
             }
             return Integer.compare(el1.getCollisionPriority(), el2.getCollisionPriority());
         }
         );
         orderedByY = new TreeSet<IMapElement>((el1, el2) -> {
-            if (el1.getPosition().getY() < el2.getPosition().getY()){
+            if (el1.getPosition().y < el2.getPosition().y){
                 return -1;
             }
-            if (el1.getPosition().getY() > el2.getPosition().getY()){
+            if (el1.getPosition().y > el2.getPosition().y){
                 return 1;
             }
-            if (el1.getPosition().getX() < el2.getPosition().getX()){
+            if (el1.getPosition().x < el2.getPosition().x){
                 return -1;
             }
-            if (el1.getPosition().getX() > el2.getPosition().getX()){
+            if (el1.getPosition().x > el2.getPosition().x){
                 return 1;
             }
             return Integer.compare(el1.getCollisionPriority(), el2.getCollisionPriority());

@@ -1,6 +1,7 @@
 package agh.cs.animalsim;
 
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Animal extends AbstractMapElement{
     protected Vector2f direction;
@@ -11,13 +12,18 @@ public class Animal extends AbstractMapElement{
 
 
 
-    public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore, int speed){
+    public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore, int speed, int size){
         super(map, initialPosition);
         direction = new Vector2f(0, 1);
         this.carnivore = carnivore;
-        energy = 100;
-        vision = 300;
+        energy = 50000;
+        vision = 200;
         this.speed = speed;
+        this.size = size;
+    }
+
+    public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore, int speed){
+        this(map, initialPosition, carnivore, speed, 10);
     }
 
     public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore){
@@ -32,15 +38,26 @@ public class Animal extends AbstractMapElement{
         this(map, new Vector2d(2,2));
     }
 
+    @Override
+    public int getCollisionPriority() {
+        if (carnivore){
+            return size+1;
+        }
+        return size;
+    }
 
+    @Override
     public int collisionWithHerbivore(){
         move(MoveDirection.FORWARD);
         return 0;
     }
 
+    @Override
     public int collisionWithCarnivore(){
-        energy = 0;     // delete me - probably through observer
-        return 500*size;
+        died();
+        int result = 10000 * size + energy;
+        energy = 0;
+        return result;
     }
 
     public String toString(){
@@ -63,14 +80,14 @@ public class Animal extends AbstractMapElement{
     }
 
     public MapDirection getDirection(){
-        if (Math.abs(direction.getY()) > Math.abs(direction.getX())){
-            if (direction.getY() > 0){
+        if (Math.abs(direction.y) > Math.abs(direction.x)){
+            if (direction.y > 0){
                 return MapDirection.NORTH;
             } else {
                 return MapDirection.SOUTH;
             }
         } else {
-            if (direction.getX() > 0){
+            if (direction.x > 0){
                 return MapDirection.EAST;
             } else {
                 return MapDirection.WEST;
@@ -103,77 +120,55 @@ public class Animal extends AbstractMapElement{
     public void speedMove(){
         Vector2d newPosition = position.add(direction.multiply(speed).approx());
         if (moveTo(newPosition))
-            energy -= speed*speed*size;
+            energy -= speed*speed*size/10;
     }
 
     private boolean moveTo(Vector2d newPosition){
         if(mapThatImOn.canThisMoveTo(newPosition, this)) {
             Vector2d oldPosition = position;
-            energy += onMove(newPosition);
+            energy += callCollisionsOn(newPosition);
             position = newPosition;
-            updateObservers(oldPosition);
+            moved(oldPosition);
             return true;
         }
         return false;
     }
 
-    private int onMove(Vector2d newPosition){
+    private int callCollisionsOn(Vector2d newPosition){
+        int energyGathered = 0;
         if (carnivore){
-            return collisionObserver.callCollisionWithCarnivore(newPosition);
+            for (ICollisionObserver observer : collisionObservers){
+                energyGathered += observer.callCollisionWithCarnivore(newPosition);
+            }
         } else {
-            return collisionObserver.callCollisionWithHerbivore(newPosition);
+            for (ICollisionObserver observer : collisionObservers){
+                energyGathered += observer.callCollisionWithHerbivore(newPosition);
+            }
         }
+        return energyGathered;
     }
 
     @Override
     public int getDrawingSize(){
-        return size*10;
+        return size;
     }
 
     public boolean isCarnivore(){
         return carnivore;
     }
 
-    public void goInDirection(Vector2d somethin){                                   //TODO do usuniecia i zastapienia funkcja z Vector2d
-        Vector2d positio = getPosition().dualMod(mapThatImOn.upperRightCorner());
-        Vector2d something = somethin.dualMod(mapThatImOn.upperRightCorner().subtract(mapThatImOn.lowerLeftCorner()));
-        int modX = mapThatImOn.upperRightCorner().subtract(mapThatImOn.lowerLeftCorner()).getX();
-        int modY = mapThatImOn.upperRightCorner().subtract(mapThatImOn.lowerLeftCorner()).getY();
-        Vector2d lowest = something;
-        if (something.add(new Vector2d(0, modY)).dist(positio) < lowest.dist(positio)){
-            lowest = something.add(new Vector2d(0, modY));
-        }
-        if (something.add(new Vector2d(0, (-1)*modY)).dist(position) < lowest.dist(position)){
-            lowest = something.add(new Vector2d(0, (-1) * modY));
-        }
-        if (something.add(new Vector2d(modX, 8)).dist(positio) < lowest.dist(positio)){
-            lowest = something.add(new Vector2d(modX, 0));
-        }
-        if (something.add(new Vector2d((-1) * modX, 0)).dist(positio) < lowest.dist(positio)){
-            lowest = something.add(new Vector2d((-1) * modX, 0));
-        }
-        direction = new Vector2f(lowest.subtract(positio.dualMod(mapThatImOn.upperRightCorner()))).normalize();
+    public void goInDirection(Vector2d something){
+        direction = new Vector2f(position.distVectorWithMod(something, mapThatImOn.upperRightCorner())).normalize();
+        turnByRandomAngle(50);
     }
 
-    public void runFrom(Vector2d somethin){                     //TODO do usuniecia i zastapienia funkcja z Vector2d
-        Vector2d positio = getPosition().dualMod(mapThatImOn.upperRightCorner());
-        Vector2d something = somethin.dualMod(mapThatImOn.upperRightCorner().subtract(mapThatImOn.lowerLeftCorner()));
-        int modX = mapThatImOn.upperRightCorner().subtract(mapThatImOn.lowerLeftCorner()).getX();
-        int modY = mapThatImOn.upperRightCorner().subtract(mapThatImOn.lowerLeftCorner()).getY();
-        Vector2d lowest = something;
-        if (something.add(new Vector2d(0, modY)).dist(positio) < lowest.dist(positio)){
-            lowest = something.add(new Vector2d(0, modY));
-        }
-        if (something.add(new Vector2d(0, (-1)*modY)).dist(position) < lowest.dist(position)){
-            lowest = something.add(new Vector2d(0, (-1) * modY));
-        }
-        if (something.add(new Vector2d(modX, 8)).dist(positio) < lowest.dist(positio)){
-            lowest = something.add(new Vector2d(modX, 0));
-        }
-        if (something.add(new Vector2d((-1) * modX, 0)).dist(positio) < lowest.dist(positio)){
-            lowest = something.add(new Vector2d((-1) * modX, 0));
-        }
-        direction = new Vector2f(positio.subtract(lowest)).normalize();
+    public void runFrom(Vector2d something){
+        direction = new Vector2f(something.distVectorWithMod(position, mapThatImOn.upperRightCorner())).normalize();
+        turnByRandomAngle(50);
+    }
+
+    public void turnByRandomAngle(double a){
+        direction = direction.rotate(ThreadLocalRandom.current().nextDouble((-1)*Math.PI/a, Math.PI/a));
     }
 
     public void see(){      //TODO this is temporary
@@ -187,7 +182,7 @@ public class Animal extends AbstractMapElement{
             if(pos.equals(this.position)){
                 continue;
             }
-            double dist = pos.distWithDualModulo(position, mapThatImOn.upperRightCorner().subtract(mapThatImOn.lowerLeftCorner()));
+            double dist = pos.distWithMod(position, mapThatImOn.upperRightCorner().subtract(mapThatImOn.lowerLeftCorner()));
             if (dist < vision){
                 IMapElement element = mapThatImOn.objectAt(pos);
                 if (element.isCarnivore() && element.getCollisionPriority() >= size && dist < enemyDist && !carnivore){
@@ -203,7 +198,7 @@ public class Animal extends AbstractMapElement{
                 }
             }
         }
-        if (closestEnemy != null){
+        if (closestEnemy != null && energy > speed*speed*size*2){
             runFrom(closestEnemy);
             speedMove();
             return;
@@ -218,14 +213,18 @@ public class Animal extends AbstractMapElement{
                 speedMove();
             }
         } else {
-            goInDirection(new Vector2d(0,0));
+            turnByRandomAngle(10);
             speedMove();
         }
-
+        if (energy <= 0){
+            died();
+        }
     }
 
     @Override
     public void go(){
-        see();
+        if (energy > 0) {
+            see();
+        }
     }
 }

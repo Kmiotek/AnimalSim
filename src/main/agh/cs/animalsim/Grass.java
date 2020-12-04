@@ -13,6 +13,8 @@ public class Grass extends AbstractMapElement{
 
     public Grass(IWorldMap map, Vector2d position){
         super(map, position);
+        randomer = new VectorRandomizer(map);
+        this.position = randomer.randomVectorInRangeSmart(position, position);
     }
 
     public String toString(){

@@ -1,21 +1,20 @@
 package agh.cs.animalsim;
 
-import agh.cs.animalsim.swing.MapDisplayer;
+import agh.cs.animalsim.swing.TropicSimulationEngine;
 
+import java.awt.*;
 import java.util.*;
 
-public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver, ICollisionObserver {
+public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver, ICollisionObserver, IDeathObserver {
 
     protected Map<Vector2d, Set<IMapElement>> map;
     protected MapVisualizer myVisualizer;
-    protected MapDisplayer displayer;
 
     protected Vector2d v_1_1;
 
     public AbstractWorldMap(){
         map = new LinkedHashMap<>();
         myVisualizer = new MapVisualizer(this);
-        displayer = new MapDisplayer(this);
         v_1_1 = new Vector2d(1,1);
     }
 
@@ -72,6 +71,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         if (canThisMoveTo(position, object)) {
             object.registerPositionObserver(this);
             object.registerCollisionObserver(this);
+            object.registerDeathObserver(this);
             if (map.containsKey(position)) {
                 map.get(position).add(object);
             } else {
@@ -92,10 +92,25 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         throw new IllegalArgumentException("Position " + object.getPosition() + " is not available");
     }
 
-    @Override
-    public void display() {
-        displayer.display(lowerLeftCorner(),upperRightCorner());
-    }
+    /*@Override
+    public ArrayList<ObjectVisualization> getVisualization() {
+        for(Vector2d position : map.){
+            IMapElement object = map.objectAt(position);
+            if (object instanceof Animal){
+                if(object.isCarnivore()) {
+                    g.setColor(Color.RED);
+                } else {
+                    g.setColor(brown);
+                }
+            } else if (object instanceof Grass){
+                g.setColor(Color.GREEN);
+            }
+            int size = object.getDrawingSize();
+            Vector2d newPos = object.getPosition().modulo(map.upperRightCorner());
+            g.fillOval(newPos.x - size/2 - lowerLeft.x + 50,
+                    newPos.y - size/2 - lowerLeft.y + 50, size, size);
+        }
+    }*/
 
     public String toString(){
         return myVisualizer.draw(lowerLeftCorner(), upperRightCorner());
@@ -107,6 +122,11 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
 
     public Vector2d upperRightCorner(){
         return null;
+    }
+
+    @Override
+    public void getVisualization(){
+
     }
 
 
@@ -130,5 +150,25 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
                 map.put(what.getPosition(), newSquare);
             }
         }
+    }
+
+    @Override
+    public void died(IMapElement object) {
+        Set<IMapElement> square = objectsAt(object.getPosition());
+        if (square.size() < 2){
+            map.remove(object.getPosition());
+        } else {
+            square.remove(object);
+        }
+    }
+
+    public int numberOfPositionsOccupiedInSquare(Vector2d lowerLeft, Vector2d upperRight) {
+        Set<Vector2d> names = new HashSet<>();
+        for (Vector2d el : map.keySet()) {
+            if (el.weakFollows(lowerLeft) && el.weakPrecedes(upperRight)) {
+                names.add(el);
+            }
+        }
+        return names.size();
     }
 }

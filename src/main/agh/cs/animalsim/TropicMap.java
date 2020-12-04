@@ -1,22 +1,28 @@
 package agh.cs.animalsim;
 
+import agh.cs.animalsim.swing.TropicSimulationEngine;
+
 import java.util.HashSet;
 import java.util.Set;
 
 public class TropicMap extends AbstractWorldMap{
 
-    final Vector2d size;
-    int jungleSize;
+    public final Vector2d size;
+    public Vector2d jungleSize;
 
-    public TropicMap(int sizex, int sizey, int jungleSize){
+    public TropicMap(int sizex, int sizey, int jungleSizeX, int jungleSizeY){
         super();
         this.size = new Vector2d(sizex, sizey);
-        this.jungleSize = jungleSize;
+        this.jungleSize = new Vector2d(jungleSizeX, jungleSizeY);
+    }
+
+    public Vector2d junglePos(){
+        return new Vector2d((size.x - jungleSize.x) / 2, (size.y - jungleSize.y) / 2);
     }
 
     @Override
     public IMapElement objectAt(Vector2d position) {
-        Set<IMapElement> set = map.get(position.dualMod(size));
+        Set<IMapElement> set = map.get(position.modulo(size));
         if (set == null){
             return null;
         }
@@ -28,17 +34,20 @@ public class TropicMap extends AbstractWorldMap{
                 currentPriority = el.getCollisionPriority();
             }
         }
+        if (current == null){
+            System.out.println("break point");
+        }
         return current;
     }
 
     @Override
     public Set<IMapElement> objectsAt(Vector2d position) {
-        return map.get(position.dualMod(size));
+        return map.get(position.modulo(size));
     }
 
     @Override
     public boolean placeAnyObject(IMapElement object){
-        Vector2d newPosition = object.getPosition().dualMod(size);
+        Vector2d newPosition = object.getPosition().modulo(size);
         if (placeOnPosition(object, newPosition)){
             return true;
         }
@@ -46,19 +55,27 @@ public class TropicMap extends AbstractWorldMap{
     }
 
     @Override
+    public void getVisualization() {
+
+    }
+
+    @Override
     public Set<Vector2d> getObjectsPositions() {
         Set<Vector2d> ret = new HashSet<>();
         for(Vector2d el : map.keySet()){
-            ret.add(el.dualMod(size));
+            ret.add(el.modulo(size));
         }
         return ret;
     }
 
     @Override
     public void positionChanged(Vector2d oldPosition1, IMapElement what) {
-        Vector2d oldPosition = oldPosition1.dualMod(size);
-        Vector2d newPosition = what.getPosition().dualMod(size);
+        Vector2d oldPosition = oldPosition1.modulo(size);
+        Vector2d newPosition = what.getPosition().modulo(size);
         Set<IMapElement> square = map.get(oldPosition);
+        if (square == null){
+            System.out.println("break point");
+        }
         if (square.size() < 2){
             map.remove(oldPosition);
             if (isOccupied(newPosition)){
@@ -67,7 +84,7 @@ public class TropicMap extends AbstractWorldMap{
                 map.put(newPosition, square);
             }
         } else {
-            map.get(oldPosition).remove(what);
+            square.remove(what);
             if (isOccupied(newPosition)){
                 map.get(newPosition).add(what);
             } else {
@@ -78,6 +95,16 @@ public class TropicMap extends AbstractWorldMap{
         }
     }
 
+    @Override
+    public void died(IMapElement object) {
+        Set<IMapElement> square = objectsAt(object.getPosition().modulo(size));
+        if (square.size() < 2){
+            map.remove(object.getPosition().modulo(size));
+        } else {
+            square.remove(object);
+        }
+    }
+
     public Vector2d lowerLeftCorner(){
         return new Vector2d(0,0);
     }
@@ -85,4 +112,6 @@ public class TropicMap extends AbstractWorldMap{
     public Vector2d upperRightCorner(){
         return size;
     }
+
+
 }

@@ -40,7 +40,7 @@ public interface IWorldMap {
 
     boolean placeAnyObject(IMapElement object);
 
-    void display();
+    void getVisualization();
 
     /**
      * Return true if given position on the map is occupied. Should not be

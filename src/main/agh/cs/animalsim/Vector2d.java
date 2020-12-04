@@ -3,21 +3,13 @@ package agh.cs.animalsim;
 import java.util.Objects;
 
 public class Vector2d {
-    final private int x;
-    final private int y;
+    final public int x;
+    final public int y;
 
 
-    public Vector2d(int x, int y){
+    public Vector2d(int x, int y) {
         this.x = x;
         this.y = y;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
     }
 
     public Vector2d(Vector2d other){
@@ -30,85 +22,97 @@ public class Vector2d {
         if (!(other instanceof Vector2d))
             return false;
         Vector2d that = (Vector2d) other;
-        return this.getX() == that.getX() && this.getY() == that.getY();
+        return this.x == that.x && this.y == that.y;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getX(), getY());
+        return Objects.hash(x, y);
     }
 
     public String toString(){
-        return "(" + this.getX() + "," + this.getY() + ")";
+        return "(" + this.x + "," + this.y + ")";
     }
 
     public boolean precedes(Vector2d other){
-        return other.getX() > this.getX() && other.getY() > this.getY();
+        return other.x > this.x && other.y > this.y;
     }
 
     public boolean weakPrecedes(Vector2d other){
-        return other.getX() >= this.getX() && other.getY() >= this.getY();
+        return other.x >= this.x && other.y >= this.y;
     }
 
     public boolean follows(Vector2d other){
-        return other.getX() < this.getX() && other.getY() < this.getY();
+        return other.x < this.x && other.y < this.y;
     }
 
     public boolean weakFollows(Vector2d other){
-        return other.getX() <= this.getX() && other.getY() <= this.getY();
+        return other.x <= this.x && other.y <= this.y;
     }
 
     public Vector2d upperRight(Vector2d other){
         int Mx, My;
-        Mx = Math.max(other.getX(), this.getX());
-        My = Math.max(other.getY(), this.getY());
+        Mx = Math.max(other.x, this.x);
+        My = Math.max(other.y, this.y);
         return new Vector2d(Mx,My);
     }
 
     public Vector2d lowerLeft(Vector2d other){
         int Mx, My;
-        Mx = Math.min(other.getX(), this.getX());
-        My = Math.min(other.getY(), this.getY());
+        Mx = Math.min(other.x, this.x);
+        My = Math.min(other.y, this.y);
         return new Vector2d(Mx,My);
     }
 
     public Vector2d add(Vector2d other){
-        return new Vector2d(this.getX() + other.getX(), this.getY() + other.getY());
+        return new Vector2d(this.x + other.x, this.y + other.y);
     }
 
     public Vector2d subtract(Vector2d other){
-        return new Vector2d(this.getX() - other.getX(), this.getY() - other.getY());
+        return new Vector2d(this.x - other.x, this.y - other.y);
     }
 
     public Vector2d opposite() {
-        return new Vector2d(this.getX() * (-1), this.getY() * (-1));
+        return new Vector2d(this.x * (-1), this.y * (-1));
     }
 
     public double length(){
-        return Math.sqrt(this.getX() * this.getX() + this.getY() * this.getY());
+        return Math.sqrt(this.x * this.x + this.y * this.y);
     }
 
     public double dist(Vector2d other){
         return Math.sqrt(Math.pow(this.x - other.x , 2) + Math.pow(this.y - other.y, 2));
     }
 
-    public Vector2d distVectorWithMod(Vector2d other){                        //TODO trzeba to zrobic
-        return null;
+    public Vector2d scale(double a){
+        return new Vector2d((int)(x*a + 0.5), (int)(y*a +0.5));
     }
 
-    public double distWithDualModulo(Vector2d other, Vector2d mod){
-        Vector2d other1 = other.dualMod(mod);
-        return Math.min(Math.min(other1.dist(dualMod(mod)), other1.add(new Vector2d(0, mod.y)).dist(dualMod(mod))),
-                Math.min(Math.min(other1.add(new Vector2d(0, (-1) * mod.y)).dist(dualMod(mod)),
-                        other1.add(new Vector2d(mod.x, 0)).dist(dualMod(mod))),
-                other1.add(new Vector2d((-1) * mod.x, 0)).dist(dualMod(mod))));
+    public Vector2d distVectorWithMod(Vector2d other, Vector2d mod){
+        Vector2d v1 = other.modulo(mod);
+        Vector2d v2 = this.modulo(mod);
+        int minX = v1.x;
+        int minY = v1.y;
+        if (Math.abs(v1.x - mod.x - v2.x) < Math.abs(v1.x - v2.x)){
+            minX = v1.x - mod.x;
+        }
+        if (Math.abs(v1.x + mod.x - v2.x) < Math.abs(minX - v2.x)){
+            minX = v1.x + mod.x;
+        }
+        if (Math.abs(v1.y - mod.y - v2.y) < Math.abs(v1.y - v2.y)){
+            minY = v1.y - mod.y;
+        }
+        if (Math.abs(v1.y + mod.y - v2.y) < Math.abs(minY - v2.y)){
+            minY = v1.y + mod.y;
+        }
+        return new Vector2d(minX - v2.x, minY - v2.y);
     }
 
-    public Vector2d mod(int a){
-        return new Vector2d(Math.floorMod(x, a), Math.floorMod(y, a));
+    public double distWithMod(Vector2d other, Vector2d mod){
+        return distVectorWithMod(other, mod).length();
     }
 
-    public Vector2d dualMod(Vector2d other){
+    public Vector2d modulo(Vector2d other){
         return new Vector2d(Math.floorMod(x, other.x), Math.floorMod(y, other.y));
     }
 
