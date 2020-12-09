@@ -9,6 +9,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Painter extends Canvas implements Runnable, ActionListener, ItemListener {
@@ -31,7 +33,7 @@ public class Painter extends Canvas implements Runnable, ActionListener, ItemLis
             updater.createAnimal(false, 10, 10);
         }
         for (int i =0;i<numberOfCarnivores;i++){
-            updater.createAnimal(true, 10, 10);
+            updater.createAnimal(true, 20, 11);
         }
         for (int i =0;i<amountOfGrass;i++){
             updater.createGrass();
@@ -52,7 +54,8 @@ public class Painter extends Canvas implements Runnable, ActionListener, ItemLis
         upperRight = map.upperRightCorner();
         lowerLeft = map.lowerLeftCorner();
         g.fillRect(50, 50, upperRight.x - lowerLeft.x, upperRight.y - lowerLeft.y);
-        for(Vector2d position : map.getObjectsPositions()){
+        Collection<Vector2d> syncCollection = Collections.synchronizedCollection(map.getObjectsPositions());
+        for(Vector2d position : syncCollection){
             IMapElement object = map.objectAt(position);
             if (object instanceof Animal){
                 if(object.isCarnivore()) {
@@ -86,12 +89,14 @@ public class Painter extends Canvas implements Runnable, ActionListener, ItemLis
 
         while (true) {
 
-            updater.update();
+            if (running) {
+                updater.update();
 
-            repaint();
+                repaint();
+            }
 
             timeDiff = System.currentTimeMillis() - beforeTime;
-            int DELAY = 50;
+            int DELAY =60;
             sleep = DELAY - timeDiff;
 
             if (sleep < 0) {
@@ -101,12 +106,12 @@ public class Painter extends Canvas implements Runnable, ActionListener, ItemLis
             try {
                 Thread.sleep(sleep);
             } catch (InterruptedException e) {
-                break;
 
-  //              String msg = String.format("Thread interrupted: %s", e.getMessage());
-//
-  //              JOptionPane.showMessageDialog(this, msg, "Error",
-//                        JOptionPane.ERROR_MESSAGE);
+
+                String msg = String.format("Thread interrupted: %s", e.getMessage());
+
+                JOptionPane.showMessageDialog(this, msg, "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
 
             beforeTime = System.currentTimeMillis();
@@ -116,11 +121,9 @@ public class Painter extends Canvas implements Runnable, ActionListener, ItemLis
     @Override
     public void actionPerformed(ActionEvent e) {
         if ("stop".equals(e.getActionCommand())) {
-            animator.interrupt();
-            running = !running;
-        }
-        if (running){
-            addNotify();
+            running = false;
+        } else if ("start".equals(e.getActionCommand())) {
+            running = true;
         }
     }
 

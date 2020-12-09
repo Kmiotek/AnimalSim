@@ -1,5 +1,6 @@
 package agh.cs.animalsim;
 
+import java.awt.*;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -9,6 +10,9 @@ public class Animal extends AbstractMapElement{
     protected int speed;
     protected int vision;
     protected final boolean carnivore;
+
+    protected IMapElement prey;
+    protected IMapElement hunter;
 
 
 
@@ -153,6 +157,14 @@ public class Animal extends AbstractMapElement{
         return size;
     }
 
+    @Override
+    public Color getColor() {
+        if (carnivore){
+            return Color.RED;
+        }
+        return Color.BLACK;
+    }
+
     public boolean isCarnivore(){
         return carnivore;
     }
@@ -171,13 +183,9 @@ public class Animal extends AbstractMapElement{
         direction = direction.rotate(ThreadLocalRandom.current().nextDouble((-1)*Math.PI/a, Math.PI/a));
     }
 
-    public void see(){      //TODO this is temporary
+    public void see(){
         energy -= vision;
         Set<Vector2d> set = mapThatImOn.getObjectsPositions();
-        Vector2d closestFood = null;
-        double foodDist = vision + 1;
-        Vector2d closestEnemy = null;
-        double enemyDist = vision + 1;
         for (Vector2d pos : set) {
             if(pos.equals(this.position)){
                 continue;
@@ -185,46 +193,78 @@ public class Animal extends AbstractMapElement{
             double dist = pos.distWithMod(position, mapThatImOn.upperRightCorner().subtract(mapThatImOn.lowerLeftCorner()));
             if (dist < vision){
                 IMapElement element = mapThatImOn.objectAt(pos);
-                if (element.isCarnivore() && element.getCollisionPriority() >= size && dist < enemyDist && !carnivore){
-                    closestEnemy = pos;
-                    enemyDist = dist;
-                } else if (element.isGrassy() && dist < foodDist && !carnivore){
-                    closestFood = pos;
-                    foodDist = dist;
-                } else if (!element.isGrassy() && !element.isCarnivore() && dist < foodDist
+                if (element.isCarnivore() && element.getCollisionPriority() >= size && !carnivore){
+                    if (hunter == null || dist < hunter.getPosition().distWithMod(position, mapThatImOn.upperRightCorner())) {
+                        hunter = element;
+                    }
+                } else if (element.isGrassy() && !carnivore){
+                    if (prey == null || dist < prey.getPosition().distWithMod(position, mapThatImOn.upperRightCorner())){
+                        prey = element;
+                    }
+                } else if (!element.isGrassy() && !element.isCarnivore()
                         && carnivore && element.getCollisionPriority() <= size){
-                    closestFood = pos;
-                    foodDist = dist;
+                    if (prey == null || dist < prey.getPosition().distWithMod(position, mapThatImOn.upperRightCorner())){
+                        prey = element;
+                    }
                 }
             }
         }
-        if (closestEnemy != null && energy > speed*speed*size*2){
-            runFrom(closestEnemy);
+    }
+
+    private void updateDirection(){
+        if (hunter != null){
+            runFrom(hunter.getPosition());
+        } else if (prey != null){
+            goInDirection(prey.getPosition());
+        } else {
+            turnByRandomAngle(10);
+        }
+    }
+
+
+    private void makeAMove(){
+        if (prey == null){
             speedMove();
             return;
         }
-        if (closestFood != null){
-            goInDirection(closestFood);
-            if (foodDist < speed){
-                if (moveTo(closestFood)){
-                    energy -= foodDist*foodDist*size;
-                }
-            } else {
-                speedMove();
+        double dist = prey.getPosition().distWithMod(position, mapThatImOn.upperRightCorner());
+        if (dist < speed){
+            if (moveTo(prey.getPosition())){
+                energy -= dist*dist*size;
             }
         } else {
-            turnByRandomAngle(10);
             speedMove();
         }
-        if (energy <= 0){
-            died();
+    }
+
+    private void updateMemory(){
+        if (hunter != null && (!hunter.isAlive() || hunter.getPosition().distWithMod(position, mapThatImOn.upperRightCorner()) >= vision)) {
+            hunter = null;
         }
+        if (prey != null && (!prey.isAlive() || prey.getPosition().distWithMod(position, mapThatImOn.upperRightCorner()) >= vision)) {
+            prey = null;
+        }
+    }
+
+    @Override
+    public boolean isAlive(){
+        return energy > 0;
     }
 
     @Override
     public void go(){
         if (energy > 0) {
-            see();
+            updateMemory();
+            if (ThreadLocalRandom.current().nextInt(0, 100) > 50){
+                see();
+            }
+            updateDirection();
+            makeAMove();
+            if (energy <= 0){
+                died();
+            }
         }
     }
+
+
 }

@@ -2,6 +2,8 @@ package agh.cs.animalsim;
 
 import agh.cs.animalsim.swing.TropicSimulationEngine;
 
+import java.awt.*;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,6 +16,7 @@ public class TropicMap extends AbstractWorldMap{
         super();
         this.size = new Vector2d(sizex, sizey);
         this.jungleSize = new Vector2d(jungleSizeX, jungleSizeY);
+
     }
 
     public Vector2d junglePos(){
@@ -23,6 +26,10 @@ public class TropicMap extends AbstractWorldMap{
     @Override
     public IMapElement objectAt(Vector2d position) {
         Set<IMapElement> set = map.get(position.modulo(size));
+        return objectIn(set);
+    }
+
+    private IMapElement objectIn(Set<IMapElement> set){
         if (set == null){
             return null;
         }
@@ -33,9 +40,6 @@ public class TropicMap extends AbstractWorldMap{
                 current = el;
                 currentPriority = el.getCollisionPriority();
             }
-        }
-        if (current == null){
-            System.out.println("break point");
         }
         return current;
     }
@@ -68,14 +72,22 @@ public class TropicMap extends AbstractWorldMap{
         return ret;
     }
 
+
+    @Override
+    public Set<Drawable> getDrawableObjects(){
+        Set<Drawable> ret = new HashSet<>();
+        for(Set<IMapElement> el : map.values()){
+            IMapElement object = objectIn(el);
+            ret.add(new Drawable(object.getPosition(), object.getColor(), object.getDrawingSize()));
+        }
+        return ret;
+    }
+
     @Override
     public void positionChanged(Vector2d oldPosition1, IMapElement what) {
         Vector2d oldPosition = oldPosition1.modulo(size);
         Vector2d newPosition = what.getPosition().modulo(size);
         Set<IMapElement> square = map.get(oldPosition);
-        if (square == null){
-            System.out.println("break point");
-        }
         if (square.size() < 2){
             map.remove(oldPosition);
             if (isOccupied(newPosition)){

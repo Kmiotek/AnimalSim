@@ -1,5 +1,7 @@
 package agh.cs.animalsim;
 
+import java.awt.*;
+
 public class Grass extends AbstractMapElement{
 
     protected VectorRandomizer randomer;
@@ -34,6 +36,11 @@ public class Grass extends AbstractMapElement{
     @Override
     public int getDrawingSize(){
         return 10;
+    }
+
+    @Override
+    public Color getColor() {
+        return Color.GREEN;
     }
 
     @Override

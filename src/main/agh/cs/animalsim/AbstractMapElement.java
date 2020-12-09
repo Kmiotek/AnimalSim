@@ -80,6 +80,10 @@ public abstract class AbstractMapElement implements IMapElement{
         }
     }
 
+    public boolean isAlive(){
+        return true;
+    }
+
     @Override
     public int getDrawingSize(){
         return 0;

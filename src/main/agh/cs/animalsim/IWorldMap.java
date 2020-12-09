@@ -34,6 +34,8 @@ public interface IWorldMap {
 
     Set<Vector2d> getObjectsPositions();
 
+    Set<Drawable> getDrawableObjects();
+
     Vector2d lowerLeftCorner();
 
     Vector2d upperRightCorner();

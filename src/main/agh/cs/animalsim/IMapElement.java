@@ -1,5 +1,7 @@
 package agh.cs.animalsim;
 
+import java.awt.*;
+
 public interface IMapElement {
 
     int getCollisionPriority();
@@ -23,6 +25,10 @@ public interface IMapElement {
     void died();
 
     int getDrawingSize();
+
+    Color getColor();
+
+    boolean isAlive();
 
     boolean isCarnivore();
 

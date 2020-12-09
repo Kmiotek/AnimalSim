@@ -19,11 +19,15 @@ public class TropicSimulationEngine {
         painter = new TropicPainter(map, numberOfHerbivores, numberOfCarnivores, amountOfGrass);
         menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("Simulation");
-        JMenuItem startMenuItem = new JMenuItem("Pause");
+        JMenuItem startMenuItemStop = new JMenuItem("Pause");
+        JMenuItem startMenuItemGo = new JMenuItem("Run");
         menuBar.add(fileMenu);
-        fileMenu.add(startMenuItem);
-        startMenuItem.setActionCommand("stop");
-        startMenuItem.addActionListener(painter);
+        fileMenu.add(startMenuItemStop);
+        startMenuItemStop.setActionCommand("stop");
+        startMenuItemStop.addActionListener(painter);
+        fileMenu.add(startMenuItemGo);
+        startMenuItemGo.setActionCommand("start");
+        startMenuItemGo.addActionListener(painter);
         this.map = map;
     }
 

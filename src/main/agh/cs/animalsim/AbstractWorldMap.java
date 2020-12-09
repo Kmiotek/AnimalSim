@@ -4,16 +4,18 @@ import agh.cs.animalsim.swing.TropicSimulationEngine;
 
 import java.awt.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver, ICollisionObserver, IDeathObserver {
 
-    protected Map<Vector2d, Set<IMapElement>> map;
+    protected ConcurrentMap<Vector2d, Set<IMapElement>> map;
     protected MapVisualizer myVisualizer;
 
     protected Vector2d v_1_1;
 
     public AbstractWorldMap(){
-        map = new LinkedHashMap<>();
+        map = new ConcurrentHashMap<>();
         myVisualizer = new MapVisualizer(this);
         v_1_1 = new Vector2d(1,1);
     }
@@ -65,6 +67,10 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     @Override
     public Set<Vector2d> getObjectsPositions() {
         return map.keySet();
+    }
+
+    public Set<Drawable> getDrawableObjects(){
+        return null;
     }
 
     protected boolean placeOnPosition(IMapElement object, Vector2d position){
