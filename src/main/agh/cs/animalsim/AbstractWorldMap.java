@@ -1,13 +1,10 @@
 package agh.cs.animalsim;
 
-import agh.cs.animalsim.swing.TropicSimulationEngine;
-
-import java.awt.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver, ICollisionObserver, IDeathObserver {
+public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver, ICollisionObserver, ILifeObserver {
 
     protected ConcurrentMap<Vector2d, Set<IMapElement>> map;
     protected MapVisualizer myVisualizer;
@@ -166,6 +163,11 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         } else {
             square.remove(object);
         }
+    }
+
+    @Override
+    public void wasBorn(IMapElement object) {
+        placeAnyObject(object);
     }
 
     public int numberOfPositionsOccupiedInSquare(Vector2d lowerLeft, Vector2d upperRight) {

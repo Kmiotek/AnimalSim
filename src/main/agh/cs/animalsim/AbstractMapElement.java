@@ -9,7 +9,7 @@ public abstract class AbstractMapElement implements IMapElement{
     protected IWorldMap mapThatImOn;
     protected ArrayList<IPositionChangeObserver> positionObservers;
     protected ArrayList<ICollisionObserver> collisionObservers;
-    protected ArrayList<IDeathObserver> deathObservers;
+    protected ArrayList<ILifeObserver> deathObservers;
     protected int size;
 
     public AbstractMapElement(IWorldMap map, Vector2d initialPosition){
@@ -69,13 +69,13 @@ public abstract class AbstractMapElement implements IMapElement{
     }
 
     @Override
-    public void registerDeathObserver(IDeathObserver observer){
+    public void registerDeathObserver(ILifeObserver observer){
         this.deathObservers.add(observer);
     }
 
     @Override
     public void died(){
-        for(IDeathObserver observer : deathObservers){
+        for(ILifeObserver observer : deathObservers){
             observer.died(this);
         }
     }

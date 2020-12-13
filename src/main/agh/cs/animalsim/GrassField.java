@@ -53,4 +53,6 @@ public class GrassField extends AbstractWorldMap{
     public Set<IMapElement> objectsAt(Vector2d position) {
         return map.get(position);
     }
+
+
 }

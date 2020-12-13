@@ -12,7 +12,7 @@ public class VectorRandomizer {
     public Vector2d randomVectorInRangeStupid(Vector2d lowerLeft, Vector2d upperRight){    //this is just temporary
         int x = ThreadLocalRandom.current().nextInt(lowerLeft.x, upperRight.x + 1);
         int y = ThreadLocalRandom.current().nextInt(lowerLeft.y, upperRight.y + 1);
-        while(!map.isOccupied(new Vector2d(x,y))) {
+        while(map.isOccupied(new Vector2d(x,y))) {
             x = ThreadLocalRandom.current().nextInt(lowerLeft.x, upperRight.x + 1);
             y = ThreadLocalRandom.current().nextInt(lowerLeft.y, upperRight.y + 1);
         }
@@ -23,7 +23,7 @@ public class VectorRandomizer {
         return randomVectorInRangeSmart(map.lowerLeftCorner(), map.upperRightCorner());
     }
 
-    public Vector2d randomVectorInRangeSmart(Vector2d lowerLeft, Vector2d upperRight){
+    public Vector2d randomVectorInRangeSmart(Vector2d lowerLeft, Vector2d upperRight){ // this is so slooooow
         AbstractWorldMap map = (AbstractWorldMap) (this.map);
         int taken = map.numberOfPositionsOccupiedInSquare(lowerLeft, upperRight);
         int total = (Math.abs(lowerLeft.x - upperRight.x) + 1) * (Math.abs(lowerLeft.y - upperRight.y) + 1);

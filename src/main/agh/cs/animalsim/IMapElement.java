@@ -20,7 +20,7 @@ public interface IMapElement {
 
     void registerCollisionObserver(ICollisionObserver observer);
 
-    void registerDeathObserver(IDeathObserver observer);
+    void registerDeathObserver(ILifeObserver observer);
 
     void died();
 

@@ -25,9 +25,9 @@ public class TallGrass extends Grass{
     @Override
     public int collisionWithHerbivore() {
         Vector2d old = position;
-        this.position = randomer.randomVectorInRangeSmart(randomMiddlePosition.subtract(new Vector2d(range, range)),
+        this.position = randomer.randomVectorInRangeStupid(randomMiddlePosition.subtract(new Vector2d(range, range)),
                 randomMiddlePosition.add(new Vector2d(range, range)));
         moved(old);
-        return 10000;
+        return 7000;
     }
 }

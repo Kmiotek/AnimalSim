@@ -2,18 +2,14 @@ package agh.cs.animalsim.swing;
 
 import agh.cs.animalsim.IWorldMap;
 import agh.cs.animalsim.TropicMap;
-import agh.cs.animalsim.Vector2d;
 
 import javax.swing.*;
+import java.awt.*;
 
-public class TropicSimulationEngine {
-    private final Painter painter;
+public class TropicSimulationEngine  {
+    private final TropicPainter painter;
     private JMenuBar menuBar;
     private IWorldMap map;
-
-    public TropicSimulationEngine(IWorldMap map, int numberOfHerbivores, int numberOfCarnivores, int amountOfGrass){
-        painter = new Painter(map, numberOfHerbivores, numberOfCarnivores, amountOfGrass);
-    }
 
     public TropicSimulationEngine(TropicMap map, int numberOfHerbivores, int numberOfCarnivores, int amountOfGrass){
         painter = new TropicPainter(map, numberOfHerbivores, numberOfCarnivores, amountOfGrass);
@@ -36,11 +32,14 @@ public class TropicSimulationEngine {
         painter.setUpperRight(map.upperRightCorner());
         JFrame f=new JFrame("Evolution");
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.add(painter);
+        f.setLayout(new BorderLayout());
         f.setSize(map.upperRightCorner().x-map.lowerLeftCorner().x + 130,
                 map.upperRightCorner().y-map.lowerLeftCorner().y + 150 + 20);
-        f.setLocationRelativeTo(null);
+        f.add(painter);
+
         f.setJMenuBar(menuBar);
+        f.setLocationRelativeTo(null);
+
         f.setVisible(true);
     }
 

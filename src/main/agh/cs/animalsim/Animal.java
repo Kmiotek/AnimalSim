@@ -1,7 +1,6 @@
 package agh.cs.animalsim;
 
 import java.awt.*;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Animal extends AbstractMapElement{
@@ -9,6 +8,8 @@ public class Animal extends AbstractMapElement{
     protected int energy;
     protected int speed;
     protected int vision;
+    protected int alertness; // higher -> checks surroundings more often, max 100
+    protected double turnPreference;
     protected final boolean carnivore;
 
     protected IMapElement prey;
@@ -21,7 +22,7 @@ public class Animal extends AbstractMapElement{
         direction = new Vector2f(0, 1);
         this.carnivore = carnivore;
         energy = 50000;
-        vision = 200;
+        vision = 50;
         this.speed = speed;
         this.size = size;
     }
@@ -59,7 +60,7 @@ public class Animal extends AbstractMapElement{
     @Override
     public int collisionWithCarnivore(){
         died();
-        int result = 10000 * size + energy;
+        int result = 3000 * size;
         energy = 0;
         return result;
     }
@@ -127,7 +128,7 @@ public class Animal extends AbstractMapElement{
             energy -= speed*speed*size/10;
     }
 
-    private boolean moveTo(Vector2d newPosition){
+    protected boolean moveTo(Vector2d newPosition){
         if(mapThatImOn.canThisMoveTo(newPosition, this)) {
             Vector2d oldPosition = position;
             energy += callCollisionsOn(newPosition);
@@ -162,56 +163,32 @@ public class Animal extends AbstractMapElement{
         if (carnivore){
             return Color.RED;
         }
-        return Color.BLACK;
+        return Color.CYAN;
     }
 
     public boolean isCarnivore(){
         return carnivore;
     }
 
-    public void goInDirection(Vector2d something){
-        direction = new Vector2f(position.distVectorWithMod(something, mapThatImOn.upperRightCorner())).normalize();
+    protected void goInDirection(Vector2d something){
+        direction = new Vector2f(position.subtract(something)).normalize();
         turnByRandomAngle(50);
     }
 
-    public void runFrom(Vector2d something){
-        direction = new Vector2f(something.distVectorWithMod(position, mapThatImOn.upperRightCorner())).normalize();
+    protected void runFrom(Vector2d something){
+        direction = new Vector2f(something.subtract(position)).normalize();
         turnByRandomAngle(50);
     }
 
-    public void turnByRandomAngle(double a){
+    protected void turnByRandomAngle(double a){
         direction = direction.rotate(ThreadLocalRandom.current().nextDouble((-1)*Math.PI/a, Math.PI/a));
     }
 
-    public void see(){
-        energy -= vision;
-        Set<Vector2d> set = mapThatImOn.getObjectsPositions();
-        for (Vector2d pos : set) {
-            if(pos.equals(this.position)){
-                continue;
-            }
-            double dist = pos.distWithMod(position, mapThatImOn.upperRightCorner().subtract(mapThatImOn.lowerLeftCorner()));
-            if (dist < vision){
-                IMapElement element = mapThatImOn.objectAt(pos);
-                if (element.isCarnivore() && element.getCollisionPriority() >= size && !carnivore){
-                    if (hunter == null || dist < hunter.getPosition().distWithMod(position, mapThatImOn.upperRightCorner())) {
-                        hunter = element;
-                    }
-                } else if (element.isGrassy() && !carnivore){
-                    if (prey == null || dist < prey.getPosition().distWithMod(position, mapThatImOn.upperRightCorner())){
-                        prey = element;
-                    }
-                } else if (!element.isGrassy() && !element.isCarnivore()
-                        && carnivore && element.getCollisionPriority() <= size){
-                    if (prey == null || dist < prey.getPosition().distWithMod(position, mapThatImOn.upperRightCorner())){
-                        prey = element;
-                    }
-                }
-            }
-        }
+    protected void see(){
+
     }
 
-    private void updateDirection(){
+    protected void updateDirection(){
         if (hunter != null){
             runFrom(hunter.getPosition());
         } else if (prey != null){
@@ -222,28 +199,12 @@ public class Animal extends AbstractMapElement{
     }
 
 
-    private void makeAMove(){
-        if (prey == null){
-            speedMove();
-            return;
-        }
-        double dist = prey.getPosition().distWithMod(position, mapThatImOn.upperRightCorner());
-        if (dist < speed){
-            if (moveTo(prey.getPosition())){
-                energy -= dist*dist*size;
-            }
-        } else {
-            speedMove();
-        }
+    protected void makeAMove(){
+        speedMove();
     }
 
-    private void updateMemory(){
-        if (hunter != null && (!hunter.isAlive() || hunter.getPosition().distWithMod(position, mapThatImOn.upperRightCorner()) >= vision)) {
-            hunter = null;
-        }
-        if (prey != null && (!prey.isAlive() || prey.getPosition().distWithMod(position, mapThatImOn.upperRightCorner()) >= vision)) {
-            prey = null;
-        }
+    protected void updateMemory(){
+
     }
 
     @Override
@@ -262,8 +223,23 @@ public class Animal extends AbstractMapElement{
             makeAMove();
             if (energy <= 0){
                 died();
+            } else if (energy > 100000){
+                makeAClone();
             }
         }
+    }
+
+
+    public void mate(Animal other){
+
+    }
+
+    public void makeAClone(){
+        Animal frog = new Animal(mapThatImOn);
+        for(ILifeObserver observer : deathObservers){
+            observer.wasBorn(frog);
+        }
+        energy-=50000;
     }
 
 
