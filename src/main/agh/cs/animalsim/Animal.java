@@ -1,36 +1,72 @@
 package agh.cs.animalsim;
 
-public class Animal implements  IMapElement{
-    private Vector2d position;
-    private MapDirection direction;
-    private IWorldMap mapThatImOn;
-    private int size;
+import java.awt.*;
+import java.util.concurrent.ThreadLocalRandom;
 
-    private Vector2d leftDownBound = new Vector2d(-1,-1);
-    private Vector2d rightUpBound = new Vector2d(5,5);
+public class Animal extends AbstractMapElement{
+    protected Vector2f direction;
+    protected int energy;
+    protected int speed;
+    protected int vision;
+    protected int alertness; // higher -> checks surroundings more often, max 100
+    protected double turnPreference;
+    protected final boolean carnivore;
 
+    protected IMapElement prey;
+    protected IMapElement hunter;
+
+
+
+    public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore, int speed, int size){
+        super(map, initialPosition);
+        direction = new Vector2f(0, 1);
+        this.carnivore = carnivore;
+        energy = 50000;
+        vision = 50;
+        this.speed = speed;
+        this.size = size;
+    }
+
+    public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore, int speed){
+        this(map, initialPosition, carnivore, speed, 10);
+    }
+
+    public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore){
+        this(map, initialPosition, carnivore, 10);
+    }
 
     public Animal(IWorldMap map, Vector2d initialPosition){
-        mapThatImOn = map;
-        position = new Vector2d(initialPosition);
-        direction = MapDirection.NORTH;
-        size = 1;
+        this(map, initialPosition, false);
     }
 
     public Animal(IWorldMap map){
         this(map, new Vector2d(2,2));
     }
 
-    public boolean canCollide(){
-        return true;
+    @Override
+    public int getCollisionPriority() {
+        if (carnivore){
+            return size+1;
+        }
+        return size;
     }
 
-    public void onCollision(){
+    @Override
+    public int collisionWithHerbivore(){
         move(MoveDirection.FORWARD);
+        return 0;
+    }
+
+    @Override
+    public int collisionWithCarnivore(){
+        died();
+        int result = 3000 * size;
+        energy = 0;
+        return result;
     }
 
     public String toString(){
-        switch (direction){
+        switch (getDirection()){
             case NORTH:
                 return "^";
             case SOUTH:
@@ -45,43 +81,166 @@ public class Animal implements  IMapElement{
     }
 
     public String getStatus(){
-        return ("Pozycja: " + position.toString() + ", kierunek: " + direction.toString());
-    }
-
-    @Override
-    public int getCollisionPriority() {
-        return size;
-    }
-
-    public Vector2d getPosition(){
-        return position;
+        return ("Pozycja: " + position.toString() + ", kierunek: " + getDirection().toString());
     }
 
     public MapDirection getDirection(){
-        return direction;
+        if (Math.abs(direction.y) > Math.abs(direction.x)){
+            if (direction.y > 0){
+                return MapDirection.NORTH;
+            } else {
+                return MapDirection.SOUTH;
+            }
+        } else {
+            if (direction.x > 0){
+                return MapDirection.EAST;
+            } else {
+                return MapDirection.WEST;
+            }
+        }
     }
 
     public void move(MoveDirection dir){
         Vector2d newPosition = position;
         switch (dir){
             case FORWARD:
-                newPosition = position.add(direction.toUnitVector());
+                newPosition = position.add(getDirection().toUnitVector());
                 break;
             case BACKWARD:
-                newPosition = position.subtract(direction.toUnitVector());
+                newPosition = position.subtract(getDirection().toUnitVector());
                 break;
             case LEFT:
-                direction = direction.previous();
+                direction = direction.left90deg();
                 break;
             case RIGHT:
-                direction = direction.next();
+                direction = direction.right90deg();
                 break;
             default:
                 System.out.println("We're fu... fine?");
         }
-        if(mapThatImOn.canThisMoveTo(newPosition, this)){
-            mapThatImOn.callOnCollision(newPosition);
+        if (moveTo(newPosition))
+            energy -= size;
+    }
+
+    public void speedMove(){
+        Vector2d newPosition = position.add(direction.multiply(speed).approx());
+        if (moveTo(newPosition))
+            energy -= speed*speed*size/10;
+    }
+
+    protected boolean moveTo(Vector2d newPosition){
+        if(mapThatImOn.canThisMoveTo(newPosition, this)) {
+            Vector2d oldPosition = position;
+            energy += callCollisionsOn(newPosition);
             position = newPosition;
+            moved(oldPosition);
+            return true;
+        }
+        return false;
+    }
+
+    private int callCollisionsOn(Vector2d newPosition){
+        int energyGathered = 0;
+        if (carnivore){
+            for (ICollisionObserver observer : collisionObservers){
+                energyGathered += observer.callCollisionWithCarnivore(newPosition);
+            }
+        } else {
+            for (ICollisionObserver observer : collisionObservers){
+                energyGathered += observer.callCollisionWithHerbivore(newPosition);
+            }
+        }
+        return energyGathered;
+    }
+
+    @Override
+    public int getDrawingSize(){
+        return size;
+    }
+
+    @Override
+    public Color getColor() {
+        if (carnivore){
+            return Color.RED;
+        }
+        return Color.CYAN;
+    }
+
+    public boolean isCarnivore(){
+        return carnivore;
+    }
+
+    protected void goInDirection(Vector2d something){
+        direction = new Vector2f(position.subtract(something)).normalize();
+        turnByRandomAngle(50);
+    }
+
+    protected void runFrom(Vector2d something){
+        direction = new Vector2f(something.subtract(position)).normalize();
+        turnByRandomAngle(50);
+    }
+
+    protected void turnByRandomAngle(double a){
+        direction = direction.rotate(ThreadLocalRandom.current().nextDouble((-1)*Math.PI/a, Math.PI/a));
+    }
+
+    protected void see(){
+
+    }
+
+    protected void updateDirection(){
+        if (hunter != null){
+            runFrom(hunter.getPosition());
+        } else if (prey != null){
+            goInDirection(prey.getPosition());
+        } else {
+            turnByRandomAngle(10);
         }
     }
+
+
+    protected void makeAMove(){
+        speedMove();
+    }
+
+    protected void updateMemory(){
+
+    }
+
+    @Override
+    public boolean isAlive(){
+        return energy > 0;
+    }
+
+    @Override
+    public void go(){
+        if (energy > 0) {
+            updateMemory();
+            if (ThreadLocalRandom.current().nextInt(0, 100) > 50){
+                see();
+            }
+            updateDirection();
+            makeAMove();
+            if (energy <= 0){
+                died();
+            } else if (energy > 100000){
+                makeAClone();
+            }
+        }
+    }
+
+
+    public void mate(Animal other){
+
+    }
+
+    public void makeAClone(){
+        Animal frog = new Animal(mapThatImOn);
+        for(ILifeObserver observer : deathObservers){
+            observer.wasBorn(frog);
+        }
+        energy-=50000;
+    }
+
+
 }

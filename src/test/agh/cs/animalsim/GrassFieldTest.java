@@ -28,7 +28,7 @@ public class GrassFieldTest {
         Grass clover = new Grass(map, poz);
         Assertions.assertTrue(map.placeAnyObject(clover));
         Assertions.assertTrue(map.isOccupied(poz));
-        Assertions.assertFalse(map.placeAnyObject(new Grass(map, poz)));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> map.placeAnyObject(new Grass(map, poz)));
         Animal hedgehog = new Animal(map, poz);
         Assertions.assertTrue(map.placeAnyObject(hedgehog));
         Assertions.assertSame(map.objectAt(poz), hedgehog);
@@ -42,7 +42,7 @@ public class GrassFieldTest {
     public void animalPlaceTest(){
         GrassField map = new GrassField(10);
         Assertions.assertTrue(map.place((new Animal(map))));
-        Assertions.assertFalse(map.place((new Animal(map))));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> map.place((new Animal(map))));
         Assertions.assertTrue(map.place((new Animal(map, poz))));
         Assertions.assertTrue(map.place(new Animal(map, new Vector2d(-1, 0))));
         Assertions.assertTrue(map.place(new Animal(map, new Vector2d(0, 10))));
@@ -53,9 +53,9 @@ public class GrassFieldTest {
 
     @Test
     public void grassPlaceTest(){
-        GrassField map = new GrassField(10);
+        GrassField map = new GrassField(0);
         Assertions.assertTrue(map.placeAnyObject((new Grass(map, new Vector2d(2, 2)))));
-        Assertions.assertFalse(map.placeAnyObject((new Grass(map, new Vector2d(2, 2)))));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> map.placeAnyObject((new Grass(map, new Vector2d(2, 2)))));
         Assertions.assertTrue(map.placeAnyObject((new Grass(map, poz))));
         Assertions.assertTrue(map.placeAnyObject((new Grass(map, new Vector2d(-1, 0)))));
         Assertions.assertTrue(map.placeAnyObject((new Grass(map, new Vector2d(0, 10)))));
@@ -160,6 +160,18 @@ public class GrassFieldTest {
                 "-11: |*|" + System.lineSeparator() +
                 "-12: ---" + System.lineSeparator();
         Assertions.assertEquals(state, map.toString());
+    }
+
+    @Test
+    public void boundaryUpdateTest(){
+        GrassField map = new GrassField(0);
+        Animal giraffe = new Animal(map, new Vector2d(10,-11));
+        map.placeAnyObject(giraffe);
+        Assertions.assertEquals(giraffe.getPosition(), map.upperRightCorner());
+        Assertions.assertEquals(giraffe.getPosition(), map.lowerLeftCorner());
+        giraffe.move(MoveDirection.FORWARD);
+        Assertions.assertEquals(giraffe.getPosition(), map.upperRightCorner());
+        Assertions.assertEquals(giraffe.getPosition(), map.lowerLeftCorner());
     }
 
 }

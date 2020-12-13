@@ -1,39 +1,53 @@
 package agh.cs.animalsim;
 
-import java.util.ArrayList;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-public class AbstractWorldMap implements IWorldMap{
+public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObserver, ICollisionObserver, ILifeObserver {
 
-    protected ArrayList<IMapElement> map;
-    protected Vector2d lowerLeftCorner;
-    protected Vector2d upperRightCorner;
+    protected ConcurrentMap<Vector2d, Set<IMapElement>> map;
     protected MapVisualizer myVisualizer;
+
+    protected Vector2d v_1_1;
+
+    public AbstractWorldMap(){
+        map = new ConcurrentHashMap<>();
+        myVisualizer = new MapVisualizer(this);
+        v_1_1 = new Vector2d(1,1);
+    }
+
+
+    @Override
+    public int callCollisionWithHerbivore(Vector2d position) {
+        if(isOccupied(position)){
+            return objectAt(position).collisionWithHerbivore();
+        }
+        return 0;
+    }
+
+    @Override
+    public int callCollisionWithCarnivore(Vector2d position) {
+        if(isOccupied(position)){
+            return objectAt(position).collisionWithCarnivore();
+        }
+        return 0;
+    }
 
     @Override
     public boolean canMoveTo(Vector2d position) {
-        return false;
+        if (!isOccupied(position)){
+            return true;
+        }
+        return objectAt(position).getCollisionPriority() < 1;
     }
 
     @Override
     public boolean canThisMoveTo(Vector2d position, IMapElement object) {
-        return false;
-    }
-
-    @Override
-    public boolean place(Animal animal) {
-        return false;
-    }
-
-    @Override
-    public boolean placeAnyObject(IMapElement object) {
-        return false;
-    }
-
-    @Override
-    public void callOnCollision(Vector2d position) {
-        if(isOccupied(position)){
-            objectAt(position).onCollision();
+        if (!isOccupied(position)){
+            return true;
         }
+        return objectAt(position).getCollisionPriority() < object.getCollisionPriority();
     }
 
     @Override
@@ -41,17 +55,128 @@ public class AbstractWorldMap implements IWorldMap{
         return objectAt(position) != null;
     }
 
+
     @Override
-    public IMapElement objectAt(Vector2d position) {
+    public boolean place(Animal animal) {
+        return placeAnyObject(animal);
+    }
+
+    @Override
+    public Set<Vector2d> getObjectsPositions() {
+        return map.keySet();
+    }
+
+    public Set<Drawable> getDrawableObjects(){
         return null;
     }
 
-    public String toString(){
-        setBounds();
-        return myVisualizer.draw(lowerLeftCorner, upperRightCorner);
+    protected boolean placeOnPosition(IMapElement object, Vector2d position){
+        if (canThisMoveTo(position, object)) {
+            object.registerPositionObserver(this);
+            object.registerCollisionObserver(this);
+            object.registerDeathObserver(this);
+            if (map.containsKey(position)) {
+                map.get(position).add(object);
+            } else {
+                Set<IMapElement> n = new HashSet<>();
+                n.add(object);
+                map.put(position, n);
+            }
+            return true;
+        }
+        return false;
     }
 
-    public void setBounds(){
+    @Override
+    public boolean placeAnyObject(IMapElement object){
+        if (placeOnPosition(object, object.getPosition())){
+            return true;
+        }
+        throw new IllegalArgumentException("Position " + object.getPosition() + " is not available");
+    }
 
+    /*@Override
+    public ArrayList<ObjectVisualization> getVisualization() {
+        for(Vector2d position : map.){
+            IMapElement object = map.objectAt(position);
+            if (object instanceof Animal){
+                if(object.isCarnivore()) {
+                    g.setColor(Color.RED);
+                } else {
+                    g.setColor(brown);
+                }
+            } else if (object instanceof Grass){
+                g.setColor(Color.GREEN);
+            }
+            int size = object.getDrawingSize();
+            Vector2d newPos = object.getPosition().modulo(map.upperRightCorner());
+            g.fillOval(newPos.x - size/2 - lowerLeft.x + 50,
+                    newPos.y - size/2 - lowerLeft.y + 50, size, size);
+        }
+    }*/
+
+    public String toString(){
+        return myVisualizer.draw(lowerLeftCorner(), upperRightCorner());
+    }
+
+    public Vector2d lowerLeftCorner(){
+        return null;
+    }
+
+    public Vector2d upperRightCorner(){
+        return null;
+    }
+
+    @Override
+    public void getVisualization(){
+
+    }
+
+
+    @Override
+    public void positionChanged(Vector2d oldPosition, IMapElement what) {
+        Set<IMapElement> square = map.get(oldPosition);
+        if (square.size() < 2){
+            map.remove(oldPosition);
+            if (isOccupied(what.getPosition())){
+                map.get(what.getPosition()).add(what);
+            } else {
+                map.put(what.getPosition(), square);
+            }
+        } else {
+            map.get(oldPosition).remove(what);
+            if (isOccupied(what.getPosition())){
+                map.get(what.getPosition()).add(what);
+            } else {
+                Set<IMapElement> newSquare = new HashSet<>();
+                newSquare.add(what);
+                map.put(what.getPosition(), newSquare);
+            }
+        }
+    }
+
+    @Override
+    public void died(IMapElement object) {
+        Set<IMapElement> square = objectsAt(object.getPosition());
+        if (square.size() < 2){
+            map.remove(object.getPosition());
+        } else {
+            square.remove(object);
+        }
+    }
+
+    @Override
+    public void wasBorn(IMapElement object) {
+        placeAnyObject(object);
+    }
+
+    public int numberOfPositionsOccupiedInSquare(Vector2d lowerLeft, Vector2d upperRight) {
+        Set<Vector2d> names = new HashSet<>();
+        for (Vector2d el : map.keySet()) {
+            if (el.weakFollows(lowerLeft) && el.weakPrecedes(upperRight)) {
+                names.add(el);
+            }
+        }
+        return names.size();
     }
 }

@@ -1,19 +1,14 @@
 package agh.cs.animalsim;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
 public class RectangularWorldMap extends AbstractWorldMap{
 
-    //private final Map<Vector2d, Animal> map;
+    Vector2d size;
 
     public RectangularWorldMap(int width, int height) {
-        lowerLeftCorner = new Vector2d(0,0);
-        upperRightCorner = new Vector2d(width-1, height-1);
-        //map = new HashMap<>();
-        map = new ArrayList<>();
-        myVisualizer = new MapVisualizer(this);
+        super();
+        size = new Vector2d(width, height);
     }
 
     public RectangularWorldMap() {
@@ -21,41 +16,45 @@ public class RectangularWorldMap extends AbstractWorldMap{
     }
 
     @Override
+    public Vector2d lowerLeftCorner(){
+        return new Vector2d(0,0);
+    }
+
+    @Override
+    public Vector2d upperRightCorner(){
+        return size.subtract(v_1_1);
+    }
+
+    @Override
     public boolean canMoveTo(Vector2d position) {
-        return position.weakPrecedes(upperRightCorner) && position.weakFollows(lowerLeftCorner) && !isOccupied(position);
+        return position.weakPrecedes(upperRightCorner()) && position.weakFollows(lowerLeftCorner()) && !isOccupied(position);
     }
 
     public boolean canThisMoveTo(Vector2d position, IMapElement object){
         return canMoveTo(position);     //this type of map doesnt need this method
     }
 
-    @Override
-    public boolean place(Animal animal) {
-        if(!canMoveTo(animal.getPosition())){
-            return false;
-        }
-        //map.put(animal.getPosition(), animal);
-        map.add(animal);
-        return true;
-    }
 
     @Override
     public boolean placeAnyObject(IMapElement object){
         if(object instanceof Animal){
-            return place((Animal) object);
+            return super.placeAnyObject(object);
         }
         return false;
     }
 
     @Override
     public IMapElement objectAt(Vector2d position) {
-        //return map.get(position);
-        for (IMapElement a : map) {
-            if(a.getPosition().equals(position)){
-                return a;
-            }
+        Set<IMapElement> tmp = map.get(position);
+        if (tmp == null){
+            return null;
         }
-        return null;
+        return tmp.iterator().next();
+    }
+
+    @Override
+    public Set<IMapElement> objectsAt(Vector2d position) {
+        return map.get(position);
     }
 
 }
