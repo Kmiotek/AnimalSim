@@ -3,14 +3,15 @@ package agh.cs.animalsim.swing;
 import agh.cs.animalsim.*;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.image.BufferStrategy;
 
-public class TropicPainter extends JPanel implements Runnable, ActionListener, ItemListener {
+public class TropicPainter extends JPanel implements Runnable, ActionListener, ItemListener, ChangeListener {
     protected IWorldMap map;
     protected Vector2d lowerLeft;
     protected Vector2d upperRight;
@@ -21,7 +22,7 @@ public class TropicPainter extends JPanel implements Runnable, ActionListener, I
     protected final Color jungleColor  = new Color(60, 100, 5);
 
     private boolean running = false;
-    Thread animator;
+    private int FPS = 30;
 
 
     public TropicPainter(IWorldMap map, int numberOfHerbivores, int numberOfCarnivores, int amountOfGrass){
@@ -72,7 +73,7 @@ public class TropicPainter extends JPanel implements Runnable, ActionListener, I
     public void addNotify() {
         super.addNotify();
 
-        animator = new Thread(this);
+        Thread animator = new Thread(this);
         animator.start();
     }
 
@@ -81,11 +82,6 @@ public class TropicPainter extends JPanel implements Runnable, ActionListener, I
         long beforeTime, timeDiff, sleep;
 
         beforeTime = System.currentTimeMillis();
-
-        //Window w = new Window();
-
-        //w.createBufferStrategy(2);
-        //BufferStrategy strategy = w.getBufferStrategy();
 
         while (true) {
 
@@ -98,7 +94,7 @@ public class TropicPainter extends JPanel implements Runnable, ActionListener, I
             }
 
             timeDiff = System.currentTimeMillis() - beforeTime;
-            int DELAY = 30;
+            int DELAY = 1000/FPS;
             sleep = DELAY - timeDiff;
 
             if (sleep < 0) {
@@ -132,5 +128,13 @@ public class TropicPainter extends JPanel implements Runnable, ActionListener, I
     @Override
     public void itemStateChanged(ItemEvent e) {
 
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        JSlider source = (JSlider)e.getSource();
+        if (!source.getValueIsAdjusting()) {
+            FPS = source.getValue();
+        }
     }
 }
