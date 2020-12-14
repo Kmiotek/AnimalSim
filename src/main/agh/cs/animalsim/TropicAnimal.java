@@ -118,7 +118,7 @@ public class TropicAnimal extends Animal {
         TropicAnimal frog = new TropicAnimal(mapThatImOn,
                 randomizer.randomVectorInRangeStupid(position.subtract(new Vector2d(1,1)), position.add(new Vector2d(1,1))),
                 carn, sped, siz);
-        for(ILifeObserver observer : deathObservers){
+        for(ILifeObserver observer : lifeObservers){
             observer.wasBorn(frog);
         }
         energy-=50000;

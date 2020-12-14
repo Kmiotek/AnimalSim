@@ -86,11 +86,8 @@ public class TropicPainter extends JPanel implements Runnable, ActionListener, I
         while (true) {
 
             if (running) {
-
-
                 updater.update();
                 repaint();
-
             }
 
             timeDiff = System.currentTimeMillis() - beforeTime;

@@ -230,13 +230,13 @@ public class Animal extends AbstractMapElement{
     }
 
 
-    public void mate(Animal other){
+    public void mate(Animal other){         //TODO swich out makeAClone for this
 
     }
 
     public void makeAClone(){
         Animal frog = new Animal(mapThatImOn);
-        for(ILifeObserver observer : deathObservers){
+        for(ILifeObserver observer : lifeObservers){
             observer.wasBorn(frog);
         }
         energy-=50000;

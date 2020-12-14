@@ -23,7 +23,7 @@ public class ClientPainter extends JPanel implements ActionListener {
         if ("start".equals(e.getActionCommand())) {
             TropicMap map = new TropicMap(1600, 900, 800, 450);
             TropicSimulationEngine engine = new TropicSimulationEngine(map, 10, 0, 50);
-            engine.start();
+            engine.run();
         }
     }
 

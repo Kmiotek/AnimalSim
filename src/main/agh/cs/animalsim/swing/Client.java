@@ -9,11 +9,7 @@ public class Client {
     }
 
     public void start(){
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                createAndShowGUI();
-            }
-        });
+        javax.swing.SwingUtilities.invokeLater(this::createAndShowGUI);
     }
 
     private void createAndShowGUI(){

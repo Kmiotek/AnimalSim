@@ -1,9 +1,5 @@
 package agh.cs.animalsim;
 
-import agh.cs.animalsim.swing.TropicSimulationEngine;
-
-import java.awt.*;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -56,11 +52,6 @@ public class TropicMap extends AbstractWorldMap{
             return true;
         }
         throw new IllegalArgumentException("Position " + object.getPosition() + " understood as " + newPosition + " is not available");
-    }
-
-    @Override
-    public void getVisualization() {
-
     }
 
     @Override

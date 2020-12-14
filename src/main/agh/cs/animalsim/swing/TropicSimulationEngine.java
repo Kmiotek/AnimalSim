@@ -1,5 +1,6 @@
 package agh.cs.animalsim.swing;
 
+import agh.cs.animalsim.IEngine;
 import agh.cs.animalsim.IWorldMap;
 import agh.cs.animalsim.TropicMap;
 
@@ -8,7 +9,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.Hashtable;
 
-public class TropicSimulationEngine  {
+public class TropicSimulationEngine implements IEngine {
     private final TropicPainter painter;
     private JMenuBar menuBar;
     private IWorldMap map;
@@ -47,7 +48,8 @@ public class TropicSimulationEngine  {
         this.map = map;
     }
 
-    public void start(){
+    @Override
+    public void run(){
         painter.setLowerLeft(map.lowerLeftCorner());
         painter.setUpperRight(map.upperRightCorner());
         JFrame f=new JFrame("Evolution");
