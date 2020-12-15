@@ -88,6 +88,10 @@ public class Vector2d {
         return new Vector2d((int)(x*a + 0.5), (int)(y*a +0.5));
     }
 
+    public Vector2d scale(Vector2f a){
+        return new Vector2d((int)(x*a.x + 0.5), (int)(y*a.y +0.5));
+    }
+
     public Vector2d distVectorWithMod(Vector2d other, Vector2d mod){
         Vector2d v1 = other.modulo(mod);
         Vector2d v2 = this.modulo(mod);

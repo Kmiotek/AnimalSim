@@ -11,7 +11,7 @@ public class SimulationEngineTest {
         Vector2d[] positions = { new Vector2d(2,2)};
         RectangularWorldMap map =  new RectangularWorldMap(10,5);
         SimulationEngine simulation = new SimulationEngine(null, map, positions);
-        simulation.run();
+        simulation.start();
         String state = " y\\x  0 1 2 3 4 5 6 7 8 9" + System.lineSeparator() +
                 "  5: ---------------------" + System.lineSeparator() +
                 "  4: | | | | | | | | | | |" + System.lineSeparator() +
@@ -29,7 +29,7 @@ public class SimulationEngineTest {
         Vector2d[] positions = { new Vector2d(2,2), new Vector2d(3,4), new Vector2d(3,2)};
         RectangularWorldMap map =  new RectangularWorldMap(10,5);
         SimulationEngine simulation = new SimulationEngine(moves, map, positions);
-        simulation.run();
+        simulation.start();
         String state = " y\\x  0 1 2 3 4 5 6 7 8 9" + System.lineSeparator() +
                 "  5: ---------------------" + System.lineSeparator() +
                 "  4: | | |^| | | | | | | |" + System.lineSeparator() +
@@ -47,7 +47,7 @@ public class SimulationEngineTest {
         Vector2d[] positions = { new Vector2d(2,2), new Vector2d(3,4), new Vector2d(3,2)};
         RectangularWorldMap map =  new RectangularWorldMap(10,5);
         SimulationEngine simulation = new SimulationEngine(moves, map, positions);
-        simulation.run();
+        simulation.start();
         String state = " y\\x  0 1 2 3 4 5 6 7 8 9" + System.lineSeparator() +
                 "  5: ---------------------" + System.lineSeparator() +
                 "  4: | | |^| | | | | | | |" + System.lineSeparator() +

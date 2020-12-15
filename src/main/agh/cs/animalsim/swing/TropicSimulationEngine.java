@@ -1,21 +1,27 @@
 package agh.cs.animalsim.swing;
 
-import agh.cs.animalsim.IEngine;
-import agh.cs.animalsim.IWorldMap;
-import agh.cs.animalsim.TropicMap;
+import agh.cs.animalsim.*;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.KeyEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Hashtable;
 
-public class TropicSimulationEngine implements IEngine {
+public class TropicSimulationEngine implements Runnable, ActionListener, ChangeListener, IEngine{
     private final TropicPainter painter;
     private JMenuBar menuBar;
     private IWorldMap map;
+    TropicSimulation updater;
+    JFrame f;
+
+    private boolean running = false;
+    private int FPS = 30;
 
     public TropicSimulationEngine(TropicMap map, int numberOfHerbivores, int numberOfCarnivores, int amountOfGrass){
-        painter = new TropicPainter(map, numberOfHerbivores, numberOfCarnivores, amountOfGrass);
+        painter = new TropicPainter(map);
         menuBar = new JMenuBar();
 
         JMenu startMenu = new JMenu("Simulation");
@@ -36,35 +42,103 @@ public class TropicSimulationEngine implements IEngine {
         labelTable.put(200, new JLabel("200") );
         framesPerSecond.setLabelTable( labelTable );
         framesPerSecond.setPaintLabels(true);
-        framesPerSecond.addChangeListener(painter);
+        framesPerSecond.addChangeListener(this);
 
         speedMenu.add(framesPerSecond);
         startMenu.add(startMenuItemStop);
         startMenuItemStop.setActionCommand("stop");
-        startMenuItemStop.addActionListener(painter);
+        startMenuItemStop.addActionListener(this);
         startMenu.add(startMenuItemGo);
         startMenuItemGo.setActionCommand("start");
-        startMenuItemGo.addActionListener(painter);
+        startMenuItemGo.addActionListener(this);
         this.map = map;
+
+        updater = new TropicSimulation(map);
+        for (int i =0;i<numberOfHerbivores;i++){
+            updater.createAnimal(false, 10, 10);
+        }
+        for (int i =0;i<numberOfCarnivores;i++){
+            updater.createAnimal(true, 20, 11);
+        }
+        for (int i =0;i<amountOfGrass;i++){
+            updater.createGrass();
+        }
     }
 
     @Override
-    public void run(){
-        painter.setLowerLeft(map.lowerLeftCorner());
-        painter.setUpperRight(map.upperRightCorner());
-        JFrame f=new JFrame("Evolution");
+    public void start(){
+        f=new JFrame("Evolution");
         f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         f.setLayout(new BorderLayout());
-        f.setSize(map.upperRightCorner().x-map.lowerLeftCorner().x + 130,
-                map.upperRightCorner().y-map.lowerLeftCorner().y + 150 + 20);
+        f.setSize(1600,
+                900);
+        painter.setResolution(new Vector2d(1600, 900));
         f.add(painter);
 
         f.setJMenuBar(menuBar);
         f.setLocationRelativeTo(null);
 
         f.setVisible(true);
+
+        Thread animator = new Thread(this);
+        animator.start();
     }
 
+    @Override
+    public void run() {
+        long beforeTime, timeDiff, sleep;
+
+        beforeTime = System.currentTimeMillis();
+
+        while (true) {
+
+            painter.setResolution(new Vector2d(f.getBounds().width, f.getBounds().height));     // this is really bad, but i dont have patience or time for doing this right
+
+            if (running) {
+                updater.update();
+                painter.repaint();
+            }
+
+            timeDiff = System.currentTimeMillis() - beforeTime;
+            int DELAY = 1000/FPS;
+            sleep = DELAY - timeDiff;
+
+            if (sleep < 0) {
+                sleep = 2;
+            }
+
+            try {
+                Thread.sleep(sleep);
+            } catch (InterruptedException e) {
+
+
+                String msg = String.format("Thread interrupted: %s", e.getMessage());
+
+                JOptionPane.showMessageDialog(painter, msg, "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+
+            beforeTime = System.currentTimeMillis();
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if ("stop".equals(e.getActionCommand())) {
+            running = false;
+        } else if ("start".equals(e.getActionCommand())) {
+            running = true;
+        }
+    }
+
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        JSlider source = (JSlider)e.getSource();
+        if (!source.getValueIsAdjusting()) {
+            FPS = source.getValue();
+        }
+    }
 
 
 }
