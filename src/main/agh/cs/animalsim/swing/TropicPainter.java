@@ -12,28 +12,22 @@ public class TropicPainter extends JPanel {
     protected final Color savannaColor = new Color(128, 123, 5);
     protected final Color jungleColor  = new Color(60, 100, 5);
 
-    private Vector2d windowSize;
-
     public TropicPainter(IWorldMap map){
         this.map = map;
-        windowSize = new Vector2d(1600, 900);
-    }
-
-    public void setResolution(Vector2d res){
-        this.windowSize = res;
     }
 
     @Override
     public void paintComponent(Graphics g){
+        Vector2d panelSize = new Vector2d(getSize().width, getSize().height);
         TropicMap map1 = (TropicMap) map;
         setBackground(Color.WHITE);
-        Vector2d upperRight = new Vector2d(windowSize.x-28, windowSize.y-82);
-        Vector2d lowerLeft = new Vector2d(windowSize.x/2, 10);
+        Vector2d upperRight = new Vector2d(panelSize.x-10, panelSize.y-10);
+        Vector2d lowerLeft = new Vector2d(10, 10);
         Vector2f scale = new Vector2f((upperRight.x-lowerLeft.x)/(double)(map.upperRightCorner().x - map.lowerLeftCorner().x),
                 (upperRight.y- lowerLeft.y)/(double)(map.upperRightCorner().y - map.lowerLeftCorner().y));
 
         g.setColor(Color.RED);
-        g.fillRect(0, 0, windowSize.x, windowSize.y);
+        g.fillRect(0, 0, panelSize.x, panelSize.y);
         g.setColor(savannaColor);
         g.fillRect(lowerLeft.x, lowerLeft.y, upperRight.x-lowerLeft.x, upperRight.y-lowerLeft.y);
         g.setColor(jungleColor);

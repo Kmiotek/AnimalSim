@@ -12,10 +12,11 @@ import java.util.Hashtable;
 
 public class TropicSimulationEngine implements Runnable, ActionListener, ChangeListener, IEngine{
     private final TropicPainter painter;
+    private Chart chart;
     private JMenuBar menuBar;
     private IWorldMap map;
     private TropicSimulation updater;
-    private JFrame f;
+    private JFrame frame;
 
     private boolean paused = true;
     private boolean running = true;
@@ -26,6 +27,7 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
                                   int initialSize, int initialSpeed, int initialEnergy, int meatQuality, int vision){
         painter = new TropicPainter(map);
         menuBar = new JMenuBar();
+        chart = new Chart();
 
         JMenu startMenu = new JMenu("Simulation");
         JMenu speedMenu = new JMenu("Speed");
@@ -67,20 +69,21 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
 
     @Override
     public void start(){
-        f=new JFrame("Evolution");
-        f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        f.setLayout(new BorderLayout());
-        f.setSize(1600,
+        frame =new JFrame("Evolution");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+        frame.setSize(1600,
                 900);
-        painter.setResolution(new Vector2d(1600, 900));
-        f.add(painter);
 
-        f.setJMenuBar(menuBar);
-        f.setLocationRelativeTo(null);
+        frame.add(painter, BorderLayout.CENTER);
+        frame.add(chart, BorderLayout.LINE_START);
 
-        f.setVisible(true);
+        frame.setJMenuBar(menuBar);
+        frame.setLocationRelativeTo(null);
 
-        f.addWindowListener(new java.awt.event.WindowAdapter() {
+        frame.setVisible(true);
+
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
                                     @Override
                                     public void windowClosing(java.awt.event.WindowEvent windowEvent) {
                                         super.windowClosing(windowEvent);
@@ -99,8 +102,6 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
         beforeTime = System.currentTimeMillis();
 
         while (running) {
-
-            painter.setResolution(new Vector2d(f.getBounds().width, f.getBounds().height));     // this is really bad, but i dont have patience or time for doing this right
 
             if (!paused) {
                 updater.update();
