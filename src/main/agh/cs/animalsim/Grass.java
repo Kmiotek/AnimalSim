@@ -58,8 +58,8 @@ public class Grass extends AbstractMapElement{
     }
 
     @Override
-    public boolean isAlive(){
-        return alive;
+    public boolean isDead(){
+        return !alive;
     }
 
     @Override

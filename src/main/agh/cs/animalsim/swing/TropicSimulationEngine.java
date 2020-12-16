@@ -23,7 +23,7 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
     private int FPS = 30;
 
     public TropicSimulationEngine(TropicMap map, int numberOfHerbivores, int numberOfCarnivores, double grassPerTick,
-                                  int initialSize, int initialSpeed, int initialEnergy, int meatQuality){
+                                  int initialSize, int initialSpeed, int initialEnergy, int meatQuality, int vision){
         painter = new TropicPainter(map);
         menuBar = new JMenuBar();
 
@@ -58,10 +58,10 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
 
         updater = new TropicSimulation(map, grassPerTick);
         for (int i =0;i<numberOfHerbivores;i++){
-            updater.createAnimal(false, initialSize, initialSpeed, initialEnergy, meatQuality, 10, 50);
+            updater.createAnimal(false, initialSize, initialSpeed, initialEnergy, meatQuality, 10, 50, vision);
         }
         for (int i =0;i<numberOfCarnivores;i++){
-            updater.createAnimal(true, initialSize, initialSpeed, initialEnergy, meatQuality, 10, 60);
+            updater.createAnimal(true, initialSize, initialSpeed, initialEnergy, meatQuality, 10, 60, vision);
         }
     }
 

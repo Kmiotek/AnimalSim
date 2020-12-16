@@ -10,8 +10,9 @@ public class TropicAnimal extends Animal {
 
 
     public TropicAnimal(IWorldMap map, Vector2d initialPosition, boolean carnivore, int speed, int size, int initialEnergy,
-                        int meatQuality, float moveEfficiency, int chanceOfLooking){
+                        int meatQuality, float moveEfficiency, int chanceOfLooking, int vision){
         super(map, initialPosition, carnivore, speed, size, initialEnergy, meatQuality, moveEfficiency, chanceOfLooking);
+        this.vision = vision;
         randomizer = new VectorRandomizer(map);
     }
 
@@ -20,7 +21,7 @@ public class TropicAnimal extends Animal {
         energy -= vision;
         Set<Vector2d> set = mapThatImOn.getObjectsPositions();
         for (Vector2d pos : set) {
-            if(pos.equals(this.position)){
+            if(pos.equals(this.position.modulo(mapThatImOn.upperRightCorner()))){
                 continue;
             }
             double dist = pos.distWithMod(position, mapThatImOn.upperRightCorner().subtract(mapThatImOn.lowerLeftCorner()));
@@ -39,6 +40,10 @@ public class TropicAnimal extends Animal {
                     if (prey == null || dist < prey.getPosition().distWithMod(position, mapThatImOn.upperRightCorner())){
                         prey = element;
                     }
+                } else if (!element.isGrassy() && element.isCarnivore() == carnivore && isReadyToMate() && element.isReadyToMate()){
+                    if (mate == null || dist < mate.getPosition().distWithMod(position, mapThatImOn.upperRightCorner())){
+                        mate = element;
+                    }
                 }
             }
         }
@@ -46,12 +51,21 @@ public class TropicAnimal extends Animal {
 
     @Override
     protected void makeAMove(){
-        if (prey == null && hunter == null){
+        if (prey == null && hunter == null && mate == null){
             if (!resting || energy < initialEnergy/5) {
                 speedMove();
             }
             if (ThreadLocalRandom.current().nextInt(0,100) > 95){
                 resting = !resting;
+            }
+            return;
+        }
+        if (mate != null){
+            double dist = mate.getPosition().distWithMod(position, mapThatImOn.upperRightCorner());
+            if (dist < speed){
+                mateWith((Animal) mate);
+            } else {
+                speedMove();
             }
             return;
         }
@@ -62,7 +76,7 @@ public class TropicAnimal extends Animal {
         double dist = prey.getPosition().distWithMod(position, mapThatImOn.upperRightCorner());
         if (dist < speed){
             if (moveTo(prey.getPosition())){
-                energy -= dist*dist*size;
+                energy -= dist*dist*size/moveEfficiency;
             }
         } else {
             speedMove();
@@ -71,11 +85,14 @@ public class TropicAnimal extends Animal {
 
     @Override
     protected void updateMemory(){
-        if (hunter != null && (!hunter.isAlive() || hunter.getPosition().distWithMod(position, mapThatImOn.upperRightCorner()) >= vision)) {
+        if (hunter != null && (hunter.isDead() || hunter.getPosition().distWithMod(position, mapThatImOn.upperRightCorner()) >= vision)) {
             hunter = null;
         }
-        if (prey != null && (!prey.isAlive() || prey.getPosition().distWithMod(position, mapThatImOn.upperRightCorner()) >= vision)) {
+        if (prey != null && (prey.isDead() || prey.getPosition().distWithMod(position, mapThatImOn.upperRightCorner()) >= vision)) {
             prey = null;
+        }
+        if (mate != null && (!mate.isReadyToMate() || !isReadyToMate() || mate.getPosition().distWithMod(position, mapThatImOn.upperRightCorner()) >= vision)) {
+            mate = null;
         }
     }
 
@@ -92,12 +109,18 @@ public class TropicAnimal extends Animal {
     }
 
     @Override
-    public void makeAClone(){
+    public void mateWith(Animal other){
         boolean carn = carnivore;
         int sped = speed;
         int siz = size;
         if (ThreadLocalRandom.current().nextInt(0 , 100) > 80){
             carn = !carn;
+        }
+        if (ThreadLocalRandom.current().nextInt(0 , 100) > 50){
+            siz = other.size;
+        }
+        if (ThreadLocalRandom.current().nextInt(0 , 100) > 50){
+            sped = other.speed;
         }
         int r =ThreadLocalRandom.current().nextInt(0 , 100);
         if (r < 25 && sped > 0){
@@ -113,16 +136,13 @@ public class TropicAnimal extends Animal {
         if (r2 > 75){
             siz ++;
         }
-        if (carn){
-            //sped ++;
-            //siz ++;
-        }
         TropicAnimal frog = new TropicAnimal(mapThatImOn,
-                randomizer.randomVectorInRangeStupid(position.subtract(new Vector2d(1,1)), position.add(new Vector2d(1,1))),
-                carn, sped, siz, initialEnergy, meatQuality, moveEfficiency, chanceOfLooking);
+                randomizer.randomVectorInRangeSmart(position.subtract(new Vector2d(1,1)), position.add(new Vector2d(1,1))),
+                carn, sped, siz, initialEnergy, meatQuality, moveEfficiency, chanceOfLooking, vision);
         for(ILifeObserver observer : lifeObservers){
             observer.wasBorn(frog);
         }
         energy-=initialEnergy;
     }
+
 }

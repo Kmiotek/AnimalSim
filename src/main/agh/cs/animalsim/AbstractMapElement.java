@@ -79,8 +79,8 @@ public abstract class AbstractMapElement implements IMapElement{
         }
     }
 
-    public boolean isAlive(){
-        return true;
+    public boolean isDead(){
+        return false;
     }
 
     @Override
@@ -95,6 +95,11 @@ public abstract class AbstractMapElement implements IMapElement{
 
     @Override
     public boolean isGrassy() {
+        return false;
+    }
+
+    @Override
+    public boolean isReadyToMate() {
         return false;
     }
 

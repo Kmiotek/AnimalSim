@@ -24,9 +24,10 @@ public class TropicSimulation implements ILifeObserver {
         this.grassPerTick = grassPerTick;
     }
 
-    public void createAnimal(boolean carnivore, int size, int speed, int initialEnergy, int meatQuality, float moveEfficiency, int chanceOfLooking){
+    public void createAnimal(boolean carnivore, int size, int speed, int initialEnergy, int meatQuality,
+                             float moveEfficiency, int chanceOfLooking, int vision){
         TropicAnimal squirrel = new TropicAnimal(map, randomizer.randomVectorOnMapSmart(), carnivore, speed, size,
-                initialEnergy, meatQuality, moveEfficiency, chanceOfLooking);
+                initialEnergy, meatQuality, moveEfficiency, chanceOfLooking, vision);
         elementsForUpdating.add(squirrel);
         squirrel.registerDeathObserver(this);
         map.place(squirrel);

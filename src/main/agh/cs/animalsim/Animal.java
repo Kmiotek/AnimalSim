@@ -18,6 +18,7 @@ public class Animal extends AbstractMapElement{
 
     protected IMapElement prey;
     protected IMapElement hunter;
+    protected IMapElement mate;
 
 
 
@@ -137,6 +138,9 @@ public class Animal extends AbstractMapElement{
         if(mapThatImOn.canThisMoveTo(newPosition, this)) {
             Vector2d oldPosition = position;
             energy += callCollisionsOn(newPosition);
+            if (energy > 7*initialEnergy){
+                energy = 7*initialEnergy;
+            }
             position = newPosition;
             moved(oldPosition);
             return true;
@@ -196,6 +200,8 @@ public class Animal extends AbstractMapElement{
     protected void updateDirection(){
         if (hunter != null){
             runFrom(hunter.getPosition());
+        } else if (mate != null){
+            goInDirection(mate.getPosition());
         } else if (prey != null){
             goInDirection(prey.getPosition());
         } else {
@@ -213,8 +219,13 @@ public class Animal extends AbstractMapElement{
     }
 
     @Override
-    public boolean isAlive(){
-        return energy > 0;
+    public boolean isDead(){
+        return energy <= 0;
+    }
+
+    @Override
+    public boolean isReadyToMate(){
+        return energy > initialEnergy * 2;
     }
 
     @Override
@@ -222,7 +233,7 @@ public class Animal extends AbstractMapElement{
         if (energy > 0) {
             updateMemory();
             int actualChanceOfLooking = chanceOfLooking;
-            if (prey != null){
+            if (prey != null || mate != null){
                 actualChanceOfLooking/=2;
             }
             if (ThreadLocalRandom.current().nextInt(0, 100) < actualChanceOfLooking){
@@ -232,18 +243,12 @@ public class Animal extends AbstractMapElement{
             makeAMove();
             if (energy <= 0){
                 died();
-            } else if (energy > initialEnergy*2){
-                makeAClone();
             }
         }
     }
 
 
-    public void mate(Animal other){         //TODO swich out makeAClone for this
-
-    }
-
-    public void makeAClone(){
+    public void mateWith(Animal other){
         Animal frog = new Animal(mapThatImOn);
         for(ILifeObserver observer : lifeObservers){
             observer.wasBorn(frog);
