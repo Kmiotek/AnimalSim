@@ -14,13 +14,16 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
     private final TropicPainter painter;
     private JMenuBar menuBar;
     private IWorldMap map;
-    TropicSimulation updater;
-    JFrame f;
+    private TropicSimulation updater;
+    private JFrame f;
 
-    private boolean running = false;
+    private boolean paused = true;
+    private boolean running = true;
+
     private int FPS = 30;
 
-    public TropicSimulationEngine(TropicMap map, int numberOfHerbivores, int numberOfCarnivores, int amountOfGrass){
+    public TropicSimulationEngine(TropicMap map, int numberOfHerbivores, int numberOfCarnivores, double grassPerTick,
+                                  int initialSize, int initialSpeed, int initialEnergy, int meatQuality){
         painter = new TropicPainter(map);
         menuBar = new JMenuBar();
 
@@ -53,15 +56,12 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
         startMenuItemGo.addActionListener(this);
         this.map = map;
 
-        updater = new TropicSimulation(map);
+        updater = new TropicSimulation(map, grassPerTick);
         for (int i =0;i<numberOfHerbivores;i++){
-            updater.createAnimal(false, 10, 10);
+            updater.createAnimal(false, initialSize, initialSpeed, initialEnergy, meatQuality, 10, 50);
         }
         for (int i =0;i<numberOfCarnivores;i++){
-            updater.createAnimal(true, 20, 11);
-        }
-        for (int i =0;i<amountOfGrass;i++){
-            updater.createGrass();
+            updater.createAnimal(true, initialSize, initialSpeed, initialEnergy, meatQuality, 10, 60);
         }
     }
 
@@ -80,6 +80,14 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
 
         f.setVisible(true);
 
+        f.addWindowListener(new java.awt.event.WindowAdapter() {
+                                    @Override
+                                    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                                        super.windowClosing(windowEvent);
+                                        running = false;
+                                    }
+                                });
+
         Thread animator = new Thread(this);
         animator.start();
     }
@@ -90,11 +98,11 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
 
         beforeTime = System.currentTimeMillis();
 
-        while (true) {
+        while (running) {
 
             painter.setResolution(new Vector2d(f.getBounds().width, f.getBounds().height));     // this is really bad, but i dont have patience or time for doing this right
 
-            if (running) {
+            if (!paused) {
                 updater.update();
                 painter.repaint();
             }
@@ -125,9 +133,9 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
     @Override
     public void actionPerformed(ActionEvent e) {
         if ("stop".equals(e.getActionCommand())) {
-            running = false;
+            paused = true;
         } else if ("start".equals(e.getActionCommand())) {
-            running = true;
+            paused = false;
         }
     }
 

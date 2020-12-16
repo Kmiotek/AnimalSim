@@ -6,17 +6,26 @@ public class Grass extends AbstractMapElement{
 
     protected VectorRandomizer randomer;
 
-    public Grass(IWorldMap map, Vector2d randomMiddlePosition, int range){
+    protected int nutrients;
+    private boolean alive = true;
+
+    public Grass(IWorldMap map, Vector2d randomMiddlePosition, int range, int nutrients){
         super(map);
         randomer = new VectorRandomizer(map);
         this.position = randomer.randomVectorInRangeStupid(randomMiddlePosition.subtract(new Vector2d(range, range)),
                 randomMiddlePosition.add(new Vector2d(range, range)));
+        this.nutrients = nutrients;
     }
 
-    public Grass(IWorldMap map, Vector2d position){
+    public Grass(IWorldMap map, Vector2d position, int nutrients){
         super(map, position);
         randomer = new VectorRandomizer(map);
         this.position = position;
+        this.nutrients = nutrients;
+    }
+
+    public Grass(IWorldMap map, Vector2d position){
+        this(map, position, 7000);
     }
 
     public String toString(){
@@ -46,6 +55,18 @@ public class Grass extends AbstractMapElement{
     @Override
     public boolean isGrassy() {
         return true;
+    }
+
+    @Override
+    public boolean isAlive(){
+        return alive;
+    }
+
+    @Override
+    public int collisionWithHerbivore() {
+        died();
+        alive = false;
+        return nutrients;
     }
 
 }

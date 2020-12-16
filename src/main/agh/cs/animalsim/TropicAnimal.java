@@ -5,11 +5,13 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class TropicAnimal extends Animal {
 
-    VectorRandomizer randomizer;
-    boolean resting = false;
+    private VectorRandomizer randomizer;
+    private boolean resting = false;
 
-    public TropicAnimal(IWorldMap map, Vector2d initialPosition, boolean carnivore, int speed, int size) {
-        super(map, initialPosition, carnivore, speed, size);
+
+    public TropicAnimal(IWorldMap map, Vector2d initialPosition, boolean carnivore, int speed, int size, int initialEnergy,
+                        int meatQuality, float moveEfficiency, int chanceOfLooking){
+        super(map, initialPosition, carnivore, speed, size, initialEnergy, meatQuality, moveEfficiency, chanceOfLooking);
         randomizer = new VectorRandomizer(map);
     }
 
@@ -45,7 +47,7 @@ public class TropicAnimal extends Animal {
     @Override
     protected void makeAMove(){
         if (prey == null && hunter == null){
-            if (!resting || energy < 10000) {
+            if (!resting || energy < initialEnergy/5) {
                 speedMove();
             }
             if (ThreadLocalRandom.current().nextInt(0,100) > 95){
@@ -113,14 +115,14 @@ public class TropicAnimal extends Animal {
         }
         if (carn){
             //sped ++;
-            siz ++;
+            //siz ++;
         }
         TropicAnimal frog = new TropicAnimal(mapThatImOn,
                 randomizer.randomVectorInRangeStupid(position.subtract(new Vector2d(1,1)), position.add(new Vector2d(1,1))),
-                carn, sped, siz);
+                carn, sped, siz, initialEnergy, meatQuality, moveEfficiency, chanceOfLooking);
         for(ILifeObserver observer : lifeObservers){
             observer.wasBorn(frog);
         }
-        energy-=50000;
+        energy-=initialEnergy;
     }
 }

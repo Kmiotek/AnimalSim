@@ -6,33 +6,38 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Animal extends AbstractMapElement{
     protected Vector2f direction;
     protected int energy;
+    protected int initialEnergy;
+    protected float moveEfficiency; // higher -> less energy spent on moving
+    protected int meatQuality; // higher -> carnivores get more energy from eating this
     protected int speed;
     protected int vision;
     protected int alertness; // higher -> checks surroundings more often, max 100
     protected double turnPreference;
     protected final boolean carnivore;
+    protected int chanceOfLooking; // unit -> [%]
 
     protected IMapElement prey;
     protected IMapElement hunter;
 
 
 
-    public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore, int speed, int size){
+    public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore, int speed, int size, int initialEnergy,
+                  int meatQuality, float moveEfficiency, int chanceOfLooking){
         super(map, initialPosition);
         direction = new Vector2f(0, 1);
         this.carnivore = carnivore;
-        energy = 50000;
+        energy = initialEnergy;
         vision = 50;
         this.speed = speed;
         this.size = size;
-    }
-
-    public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore, int speed){
-        this(map, initialPosition, carnivore, speed, 10);
+        this.initialEnergy = initialEnergy;
+        this.meatQuality = meatQuality;
+        this.moveEfficiency = moveEfficiency;
+        this.chanceOfLooking = chanceOfLooking;
     }
 
     public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore){
-        this(map, initialPosition, carnivore, 10);
+        this(map, initialPosition, carnivore, 10, 10, 50000, 3000, 10, 50);
     }
 
     public Animal(IWorldMap map, Vector2d initialPosition){
@@ -60,8 +65,8 @@ public class Animal extends AbstractMapElement{
     @Override
     public int collisionWithCarnivore(){
         died();
-        int result = 3000 * size;
-        energy = 0;
+        int result = meatQuality * size;
+        energy = -initialEnergy;
         return result;
     }
 
@@ -119,13 +124,13 @@ public class Animal extends AbstractMapElement{
                 System.out.println("We're fu... fine?");
         }
         if (moveTo(newPosition))
-            energy -= size;
+            energy -= size/moveEfficiency;
     }
 
     public void speedMove(){
         Vector2d newPosition = position.add(direction.multiply(speed).approx());
         if (moveTo(newPosition))
-            energy -= speed*speed*size/10;
+            energy -= speed*speed*size/moveEfficiency;
     }
 
     protected boolean moveTo(Vector2d newPosition){
@@ -216,14 +221,18 @@ public class Animal extends AbstractMapElement{
     public void go(){
         if (energy > 0) {
             updateMemory();
-            if (ThreadLocalRandom.current().nextInt(0, 100) > 50){
+            int actualChanceOfLooking = chanceOfLooking;
+            if (prey != null){
+                actualChanceOfLooking/=2;
+            }
+            if (ThreadLocalRandom.current().nextInt(0, 100) < actualChanceOfLooking){
                 see();
             }
             updateDirection();
             makeAMove();
             if (energy <= 0){
                 died();
-            } else if (energy > 100000){
+            } else if (energy > initialEnergy*2){
                 makeAClone();
             }
         }
@@ -239,7 +248,7 @@ public class Animal extends AbstractMapElement{
         for(ILifeObserver observer : lifeObservers){
             observer.wasBorn(frog);
         }
-        energy-=50000;
+        energy-=initialEnergy;
     }
 
 
