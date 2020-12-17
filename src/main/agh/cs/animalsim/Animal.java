@@ -253,7 +253,7 @@ public class Animal extends AbstractMapElement{
 
     public void mateWith(Animal other){
         Animal frog = new Animal(mapThatImOn);
-        for(ILifeObserver observer : lifeObservers){
+        for (ILifeObserver observer : lifeObservers){
             observer.wasBorn(frog);
         }
         energy-=initialEnergy;

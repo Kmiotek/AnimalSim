@@ -15,7 +15,7 @@ import java.util.Hashtable;
 
 public class TropicSimulationEngine implements Runnable, ActionListener, ChangeListener, IEngine, MouseListener {
     private final TropicPainter painter;
-    private Chart chart;
+    private ChartPanel chartPanel;
     private JMenuBar menuBar;
     private IWorldMap map;
     private TropicSimulation updater;
@@ -37,8 +37,9 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
                                   int initialSize, int initialSpeed, int initialEnergy, int meatQuality, int vision){
         painter = new TropicPainter(map);
         menuBar = new JMenuBar();
-        chart = new NumberChart(this, "Herbivores and carnivores", new double[]{numberOfHerbivores}, new double[]{numberOfCarnivores});
+
         manager = new HighlightManager(this);
+        chartPanel = new ChartPanel(numberOfHerbivores, numberOfCarnivores, this);
 
         JMenu startMenu = new JMenu("Simulation");
         startMenu.setFont(new Font("Arial", Font.PLAIN, 18));
@@ -73,7 +74,7 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
         startMenuItemGo.addActionListener(this);
         this.map = map;
 
-        updater = new TropicSimulation(map, chart, grassPerTick);
+        updater = new TropicSimulation(map, chartPanel.getChartsAsObservers(), grassPerTick);
         for (int i =0;i<numberOfHerbivores;i++){
             updater.createAnimal(false, initialSize, initialSpeed, initialEnergy, meatQuality, 10, 50, vision);
         }
@@ -91,7 +92,7 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
                 900);
 
         frame.add(painter, BorderLayout.CENTER);
-        frame.add(chart, BorderLayout.LINE_START);
+        frame.add(chartPanel, BorderLayout.LINE_START);
 
         frame.setJMenuBar(menuBar);
         frame.setLocationRelativeTo(null);

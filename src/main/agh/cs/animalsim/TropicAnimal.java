@@ -139,7 +139,7 @@ public class TropicAnimal extends Animal {
         TropicAnimal frog = new TropicAnimal(mapThatImOn,
                 randomizer.randomVectorInRangeSmart(position.subtract(new Vector2d(1,1)), position.add(new Vector2d(1,1))),
                 carn, sped, siz, initialEnergy, meatQuality, moveEfficiency, chanceOfLooking, vision);
-        for(ILifeObserver observer : lifeObservers){
+        for (ILifeObserver observer : lifeObservers){
             observer.wasBorn(frog);
         }
         energy-=initialEnergy;

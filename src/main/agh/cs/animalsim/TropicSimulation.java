@@ -12,20 +12,21 @@ public class TropicSimulation implements ILifeObserver {
     private ArrayList<IMapElement> elementsForAdding;
 
     private IWorldMap map;
-    private Chart chart;
 
     private VectorRandomizer randomizer;
 
     private double grassPerTick;
 
-    public TropicSimulation(IWorldMap map, Chart chart, double grassPerTick){
+    ArrayList<ILifeObserver> observers;
+
+    public TropicSimulation(IWorldMap map, ArrayList<ILifeObserver> observers, double grassPerTick){
         this.map = map;
-        this.chart = chart;
         elementsForDeleting = new ArrayList<>();
         elementsForUpdating = new ArrayList<>();
         elementsForAdding = new ArrayList<>();
         randomizer = new VectorRandomizer(map);
         this.grassPerTick = grassPerTick;
+        this.observers = observers;
     }
 
     public void createAnimal(boolean carnivore, int size, int speed, int initialEnergy, int meatQuality,
@@ -34,7 +35,9 @@ public class TropicSimulation implements ILifeObserver {
                 initialEnergy, meatQuality, moveEfficiency, chanceOfLooking, vision);
         elementsForUpdating.add(squirrel);
         squirrel.registerDeathObserver(this);
-        squirrel.registerDeathObserver(chart);
+        for (ILifeObserver observer : observers){
+            squirrel.registerDeathObserver(observer);
+        }
         map.place(squirrel);
     }
 

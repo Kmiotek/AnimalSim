@@ -80,6 +80,7 @@ public abstract class AbstractMapElement implements IMapElement{
         }
     }
 
+
     public boolean isDead(){
         return false;
     }

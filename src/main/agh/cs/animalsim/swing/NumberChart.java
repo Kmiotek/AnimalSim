@@ -2,6 +2,8 @@ package agh.cs.animalsim.swing;
 
 import agh.cs.animalsim.ILifeObserver;
 import agh.cs.animalsim.IMapElement;
+import org.knowm.xchart.XChartPanel;
+import org.knowm.xchart.XYChartBuilder;
 
 import java.util.ArrayList;
 

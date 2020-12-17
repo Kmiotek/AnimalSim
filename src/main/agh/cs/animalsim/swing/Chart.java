@@ -2,6 +2,7 @@ package agh.cs.animalsim.swing;
 
 import agh.cs.animalsim.ILifeObserver;
 import agh.cs.animalsim.IMapElement;
+import agh.cs.animalsim.Vector2d;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
@@ -20,15 +21,17 @@ public abstract class Chart extends JPanel implements ILifeObserver{
     protected ArrayList< ArrayList<Double> > axisX;
     protected ArrayList< ArrayList<Double> > axisY;
 
+    XChartPanel<XYChart> chartPane;
+
+    String title;
+
 
     public Chart(TropicSimulationEngine engine, String title, String[] seriesNames, double[][] initialDataX, double[][] initialDataY) {
         axisX = new ArrayList<>();
         axisY = new ArrayList<>();
         this.seriesNames = new ArrayList<>();
-        chart = new XYChartBuilder().width(600).title(title).build();
-
+        this.title = title;
         for (int s = 0;s<seriesNames.length; s++) {
-            chart.addSeries(seriesNames[s], initialDataX[s], initialDataY[s]);
             ArrayList<Double> listX = new ArrayList<>();
             ArrayList<Double> listY = new ArrayList<>();
             for (int i =0;i<initialDataX[s].length;i++){
@@ -42,15 +45,19 @@ public abstract class Chart extends JPanel implements ILifeObserver{
 
         this.engine = engine;
 
-
-        //chart.updateXYSeries()
-        //chart.updateXYSeries("Herbivores", new double[] { 0.0, 1.0, 19.0, 10 }, new double[] { 0.0, 2.0, 15.0, 18 }, null);
-
-        setLayout(new BorderLayout());
-
-        XChartPanel<XYChart> chartPane = new XChartPanel<>(chart);
+        chart = new XYChartBuilder().width(600).height(750).title(title).build();
+        addToChart();
+        chartPane = new XChartPanel<>(chart);
         add(chartPane);
 
+    }
+
+
+    protected void addToChart(){
+        for (int i = 0; i < seriesNames.size(); i++) {
+            chart.addSeries(seriesNames.get(i), toPrimitive(axisX.get(i).toArray(new Double[0])),
+                    toPrimitive(axisY.get(i).toArray(new Double[0])));
+        }
     }
 
     protected void updateChart() {
@@ -68,4 +75,6 @@ public abstract class Chart extends JPanel implements ILifeObserver{
         }
         return result;
     }
+
+
 }
