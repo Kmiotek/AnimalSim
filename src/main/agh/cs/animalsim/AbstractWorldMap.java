@@ -154,4 +154,19 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         }
         return names.size();
     }
+
+    @Override
+    public IMapElement objectClosestTo(Vector2d position){
+        double minDist = upperRightCorner().dist(lowerLeftCorner());
+        IMapElement current = null;
+        for (Vector2d v : map.keySet()){
+            double dist = v.dist(position);
+            IMapElement obj = objectAt(v);
+            if (dist < minDist && obj instanceof Animal && dist < obj.getDrawingSize()*8){
+                minDist = dist;
+                current = obj;
+            }
+        }
+        return current;
+    }
 }

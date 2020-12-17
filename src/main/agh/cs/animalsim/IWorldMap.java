@@ -63,4 +63,6 @@ public interface IWorldMap {
     IMapElement objectAt(Vector2d position);
 
     Set<IMapElement> objectsAt(Vector2d position);
+
+    IMapElement objectClosestTo(Vector2d position);
 }

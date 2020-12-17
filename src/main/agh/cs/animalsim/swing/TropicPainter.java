@@ -4,6 +4,8 @@ import agh.cs.animalsim.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 
 public class TropicPainter extends JPanel {
@@ -42,7 +44,15 @@ public class TropicPainter extends JPanel {
         }
     }
 
-
+    public Vector2d getMapPosition(Vector2d panelPosition){
+        Vector2d panelSize = new Vector2d(getSize().width, getSize().height);
+        Vector2d upperRight = new Vector2d(panelSize.x-10, panelSize.y-10);
+        Vector2d lowerLeft = new Vector2d(10, 10);
+        Vector2f scale = new Vector2f((double)(map.upperRightCorner().x - map.lowerLeftCorner().x)/(upperRight.x-lowerLeft.x),
+                (double)(map.upperRightCorner().y - map.lowerLeftCorner().y)/(upperRight.y- lowerLeft.y));
+        Vector2d relativePos = panelPosition.subtract(lowerLeft);
+        return relativePos.scale(scale);
+    }
 
 
 

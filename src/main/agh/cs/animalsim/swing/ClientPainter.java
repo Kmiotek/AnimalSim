@@ -23,7 +23,7 @@ public class ClientPainter extends JPanel implements ActionListener {
 
     public ClientPainter(){
 
-        this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         SpinnerModel model7 =
                 new SpinnerNumberModel(1600, 0, 10000, 10);
@@ -89,7 +89,7 @@ public class ClientPainter extends JPanel implements ActionListener {
     }
 
 
-
+    @Override
     public void actionPerformed(ActionEvent event) {
         if ("start".equals(event.getActionCommand())) {
             try {
@@ -100,12 +100,13 @@ public class ClientPainter extends JPanel implements ActionListener {
                 numberOfAnimalsSpinner.commitEdit();
                 grassPerTickSpinner.commitEdit();
                 sizeXSpinner.commitEdit();
+                sizeYSpinner.commitEdit();
                 visionSpinner.commitEdit();
             } catch (java.text.ParseException e) {
                 System.out.println("Couldn't update value of spinner");
                 System.out.println(e.getLocalizedMessage());
             }
-            TropicMap map = new TropicMap((Integer) sizeXSpinner.getValue(), (Integer) sizeXSpinner.getValue(), 400, 450);
+            TropicMap map = new TropicMap((Integer) sizeXSpinner.getValue(), (Integer) sizeYSpinner.getValue(), 400, 450);
             TropicSimulationEngine engine = new TropicSimulationEngine(map, (Integer) numberOfAnimalsSpinner.getValue(),
                     0, (Double) grassPerTickSpinner.getValue(),
                     (Integer) sizeSpinner.getValue(), (Integer) speedSpinner.getValue(), (Integer) energySpinner.getValue(),

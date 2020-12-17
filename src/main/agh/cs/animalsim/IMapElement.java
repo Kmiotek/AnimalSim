@@ -36,5 +36,7 @@ public interface IMapElement {
 
     boolean isReadyToMate();
 
+    void setHighlighted(boolean h);
+
     void go();
 }

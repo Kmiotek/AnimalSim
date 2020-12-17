@@ -11,6 +11,7 @@ public abstract class AbstractMapElement implements IMapElement{
     protected ArrayList<ICollisionObserver> collisionObservers;
     protected ArrayList<ILifeObserver> lifeObservers;
     protected int size;
+    protected boolean highlighted = false;
 
     public AbstractMapElement(IWorldMap map, Vector2d initialPosition){
         positionObservers = new ArrayList<>();
@@ -101,6 +102,11 @@ public abstract class AbstractMapElement implements IMapElement{
     @Override
     public boolean isReadyToMate() {
         return false;
+    }
+
+    @Override
+    public void setHighlighted(boolean h){
+        highlighted = h;
     }
 
     @Override

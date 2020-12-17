@@ -164,6 +164,9 @@ public class Animal extends AbstractMapElement{
 
     @Override
     public int getDrawingSize(){
+        if (highlighted){
+            return size*4;
+        }
         return size;
     }
 

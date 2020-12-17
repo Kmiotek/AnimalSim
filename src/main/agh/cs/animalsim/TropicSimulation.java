@@ -1,5 +1,7 @@
 package agh.cs.animalsim;
 
+import agh.cs.animalsim.swing.Chart;
+
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -10,13 +12,15 @@ public class TropicSimulation implements ILifeObserver {
     private ArrayList<IMapElement> elementsForAdding;
 
     private IWorldMap map;
+    private Chart chart;
 
     private VectorRandomizer randomizer;
 
     private double grassPerTick;
 
-    public TropicSimulation(IWorldMap map, double grassPerTick){
+    public TropicSimulation(IWorldMap map, Chart chart, double grassPerTick){
         this.map = map;
+        this.chart = chart;
         elementsForDeleting = new ArrayList<>();
         elementsForUpdating = new ArrayList<>();
         elementsForAdding = new ArrayList<>();
@@ -30,6 +34,7 @@ public class TropicSimulation implements ILifeObserver {
                 initialEnergy, meatQuality, moveEfficiency, chanceOfLooking, vision);
         elementsForUpdating.add(squirrel);
         squirrel.registerDeathObserver(this);
+        squirrel.registerDeathObserver(chart);
         map.place(squirrel);
     }
 

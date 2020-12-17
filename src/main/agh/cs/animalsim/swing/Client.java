@@ -19,8 +19,8 @@ public class Client {
         f.setContentPane(painter);
         painter.setOpaque(true);
 
-        f.setLocationRelativeTo(null);
         f.pack();
+        f.setLocationRelativeTo(null);
         f.setVisible(true);
     }
 
