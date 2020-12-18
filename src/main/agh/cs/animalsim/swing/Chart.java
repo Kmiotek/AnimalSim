@@ -1,17 +1,12 @@
 package agh.cs.animalsim.swing;
 
 import agh.cs.animalsim.ILifeObserver;
-import agh.cs.animalsim.IMapElement;
-import agh.cs.animalsim.Vector2d;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.stream.Collector;
 
 public abstract class Chart extends JPanel implements ILifeObserver{
     protected XYChart chart;
@@ -45,7 +40,7 @@ public abstract class Chart extends JPanel implements ILifeObserver{
 
         this.engine = engine;
 
-        chart = new XYChartBuilder().width(600).height(750).title(title).build();
+        chart = new XYChartBuilder().width(600).height(725).title(title).build();
         addToChart();
         chartPane = new XChartPanel<>(chart);
         add(chartPane);

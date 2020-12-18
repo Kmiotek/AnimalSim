@@ -259,5 +259,8 @@ public class Animal extends AbstractMapElement{
         energy-=initialEnergy;
     }
 
-
+    @Override
+    public int getSpeed(){
+        return speed;
+    }
 }

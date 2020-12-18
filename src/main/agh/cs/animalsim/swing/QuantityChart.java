@@ -7,9 +7,9 @@ import org.knowm.xchart.XYChartBuilder;
 
 import java.util.ArrayList;
 
-public class NumberChart extends Chart {
+public class QuantityChart extends Chart {
 
-    public NumberChart(TropicSimulationEngine engine, String title, double[] initialDataX, double[] initialDataY) {
+    public QuantityChart(TropicSimulationEngine engine, String title, double[] initialDataX, double[] initialDataY) {
         super(engine, title, new String[] {"Herbivores", "Carnivores"},new double[][]{new double[]{0}, new double[]{0}},
                 new double[][] {initialDataX, initialDataY});
     }

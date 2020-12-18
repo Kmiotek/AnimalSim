@@ -3,8 +3,6 @@ package agh.cs.animalsim.swing;
 import agh.cs.animalsim.ILifeObserver;
 
 import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -22,16 +20,18 @@ public class ChartPanel extends JPanel implements ActionListener {
 
     public ChartPanel(int numberOfHerbivores, int numberOfCarnivores, TropicSimulationEngine engine){
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        numberChart = new NumberChart(engine, "Herbivores and carnivores", new double[]{numberOfHerbivores}, new double[]{numberOfCarnivores});
-        emptyChart = new DataChart(engine, "No title", new String[]{}, new double[][]{}, new double[][]{});
+        numberChart = new QuantityChart(engine, "Herbivores and carnivores", new double[]{numberOfHerbivores},
+                new double[]{numberOfCarnivores});
+        emptyChart = new SizeSpeedChart(engine, "Average speed and size", new double[][]{new double[]{10}, new double[]{10}},
+                numberOfHerbivores+numberOfCarnivores);
 
         JPanel buttons = new JPanel();
-        chart1 = new JButton("Swich to Herbivores and carnivores");
+        chart1 = new JButton("Quantities");
         chart1.setActionCommand("1");
         chart1.addActionListener(this);
         buttons.add(chart1);
 
-        chart2 = new JButton("Swich to No title");
+        chart2 = new JButton("Traits");
         chart2.setActionCommand("2");
         chart2.addActionListener(this);
         buttons.add(chart2);

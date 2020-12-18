@@ -38,5 +38,9 @@ public interface IMapElement {
 
     void setHighlighted(boolean h);
 
+    int getSpeed();
+
+    int getSize();
+
     void go();
 }

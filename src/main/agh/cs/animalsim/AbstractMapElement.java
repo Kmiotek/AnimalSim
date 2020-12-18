@@ -106,6 +106,16 @@ public abstract class AbstractMapElement implements IMapElement{
     }
 
     @Override
+    public int getSpeed(){
+        return 0;
+    }
+
+    @Override
+    public int getSize(){
+        return size;
+    }
+
+    @Override
     public void setHighlighted(boolean h){
         highlighted = h;
     }
