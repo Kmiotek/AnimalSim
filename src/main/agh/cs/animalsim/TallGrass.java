@@ -7,7 +7,7 @@ public class TallGrass extends Grass{
 
 
     public TallGrass(IWorldMap map, Vector2d randomMiddlePosition, int range){
-        super(map,randomMiddlePosition, range);
+        super(map,randomMiddlePosition, range, 7000);
         this.range = range;
         this.randomMiddlePosition = randomMiddlePosition;
     }
@@ -28,6 +28,6 @@ public class TallGrass extends Grass{
         this.position = randomer.randomVectorInRangeStupid(randomMiddlePosition.subtract(new Vector2d(range, range)),
                 randomMiddlePosition.add(new Vector2d(range, range)));
         moved(old);
-        return 7000;
+        return nutrients;
     }
 }
