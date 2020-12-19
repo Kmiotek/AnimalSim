@@ -10,7 +10,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class TropicSimulationEngine implements Runnable, ActionListener, ChangeListener, IEngine, MouseListener {
@@ -31,7 +30,7 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
     private int FPS = 30;
     private int generation = 0;
 
-    IMapElement highlighted = null;
+    private Animal highlighted = null;
 
     public TropicSimulationEngine(TropicMap map, int numberOfHerbivores, int numberOfCarnivores, double grassPerTick,
                                   int initialSize, int initialSpeed, int initialEnergy, int meatQuality, int vision){
@@ -93,6 +92,8 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
 
         frame.add(painter, BorderLayout.CENTER);
         frame.add(chartPanel, BorderLayout.LINE_START);
+        frame.add(manager, BorderLayout.PAGE_END);
+        manager.setVisible(false);
 
         frame.setJMenuBar(menuBar);
         frame.setLocationRelativeTo(null);
@@ -114,9 +115,7 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
     }
 
     private void disableManager(){
-        frame.remove(manager);
-        frame.invalidate();
-        frame.validate();
+        manager.setVisible(false);
     }
 
     @Override
@@ -130,12 +129,8 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
             if (!paused) {
                 if (timeBound){
                     timer--;
-                    if (timer < 0 || highlighted.isDead()){
-                        paused = true;
-                        timeBound = false;
-                        highlighted.setHighlighted(false);
-                        highlighted = null;
-                        disableManager();
+                    if (timer < 0){
+                        manager.actionPerformed(new ActionEvent(this, 99, "stop"));
                     }
                 }
                 generation++;
@@ -172,11 +167,6 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
             paused = true;
         } else if ("start".equals(e.getActionCommand())) {
             paused = false;
-            if (highlighted != null) {
-                highlighted.setHighlighted(false);
-                highlighted = null;
-                disableManager();
-            }
         }
     }
 
@@ -200,7 +190,7 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
         if (timeBound){
             return;
         }
-        IMapElement h = map.objectClosestTo(painter.getMapPosition(new Vector2d(e.getX(), e.getY())));
+        Animal h = map.animalClosestTo(painter.getMapPosition(new Vector2d(e.getX(), e.getY())));
         if (highlighted != null) {
             highlighted.setHighlighted(false);
         }
@@ -208,12 +198,12 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
         if (highlighted != null) {
             highlighted.setHighlighted(true);
             if (paused) {
-                frame.add(manager, BorderLayout.PAGE_END);
-                frame.invalidate();
-                frame.validate();
+                manager.setVisible(true);
             }
+            chartPanel.setHighlightPanelVisible();
         } else {
             disableManager();
+            chartPanel.setHighlightPanelInvisible();
         }
     }
 
@@ -238,7 +228,16 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
         paused = false;
     }
 
+    public void stopHighlightedSimulation(){
+        timeBound = false;
+        paused = true;
+    }
+
     public int getGeneration(){
         return generation;
+    }
+
+    public Animal getHighlighted(){
+        return highlighted;
     }
 }

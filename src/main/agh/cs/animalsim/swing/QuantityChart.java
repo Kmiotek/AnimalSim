@@ -1,22 +1,21 @@
 package agh.cs.animalsim.swing;
 
-import agh.cs.animalsim.ILifeObserver;
 import agh.cs.animalsim.IMapElement;
-import org.knowm.xchart.XChartPanel;
-import org.knowm.xchart.XYChartBuilder;
 
-import java.util.ArrayList;
 
 public class QuantityChart extends Chart {
 
-    public QuantityChart(TropicSimulationEngine engine, String title, double[] initialDataX, double[] initialDataY) {
-        super(engine, title, new String[] {"Herbivores", "Carnivores"},new double[][]{new double[]{0}, new double[]{0}},
-                new double[][] {initialDataX, initialDataY});
+    public QuantityChart(TropicSimulationEngine engine, String title, double[] initialDataHerbivores,
+                         double[] initialDataCarnivores, double[] initialDataGrass) {
+        super(engine, title, new String[] {"Herbivores", "Carnivores", "Grass"},new double[][]{new double[]{0}, new double[]{0}, new double[]{0}},
+                new double[][] {initialDataHerbivores, initialDataCarnivores, initialDataGrass});
     }
 
     @Override
     public void died(IMapElement object) {
-        if (object.isCarnivore()){
+        if (object.isGrassy()){
+            deleteFrom(2);
+        } else if (object.isCarnivore()){
             deleteFrom(1);
         } else {
             deleteFrom(0);
@@ -27,7 +26,9 @@ public class QuantityChart extends Chart {
     @Override
     public void wasBorn(IMapElement object) {
         object.registerDeathObserver(this);
-        if (object.isCarnivore()){
+        if (object.isGrassy()){
+            addTo(2);
+        } else if (object.isCarnivore()){
             addTo(1);
         } else {
             addTo(0);
@@ -35,7 +36,7 @@ public class QuantityChart extends Chart {
         updateChart();
     }
 
-    private void deleteFrom(int i){
+    private void deleteFrom(int i){             // this is bad but no time to fix this
         if (axisX.get(i).get(axisX.get(i).size() - 1) == engine.getGeneration()) {
             axisY.get(i).set(axisX.get(i).size() - 1, axisY.get(i).get(axisX.get(i).size() - 1) - 1);
         } else {

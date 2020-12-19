@@ -1,6 +1,7 @@
 package agh.cs.animalsim;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Animal extends AbstractMapElement{
@@ -20,6 +21,7 @@ public class Animal extends AbstractMapElement{
     protected IMapElement hunter;
     protected IMapElement mate;
 
+    protected ArrayList<Animal> children;
 
 
     public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore, int speed, int size, int initialEnergy,
@@ -35,6 +37,7 @@ public class Animal extends AbstractMapElement{
         this.meatQuality = meatQuality;
         this.moveEfficiency = moveEfficiency;
         this.chanceOfLooking = chanceOfLooking;
+        children = new ArrayList<>();
     }
 
     public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore){
@@ -173,9 +176,16 @@ public class Animal extends AbstractMapElement{
     @Override
     public Color getColor() {
         if (carnivore){
-            return Color.RED;
+            return new Color(255, (int)Math.max(0, 200*(1 - energy/(float)(initialEnergy*2))),
+                    (int)Math.max(0, 200*(1 - energy/(float)(initialEnergy*2))));
         }
-        return Color.CYAN;
+        return new Color((int)Math.max(0, 200*(1 - energy/(float)(initialEnergy*2))),
+                (int)Math.max(0, 200*(1 - energy/(float)(initialEnergy*2))),
+                255);
+        //return new Color((int)Math.max(0, 200*(1 - energy/(float)(initialEnergy*2))),
+         //       (int)(200 + Math.max(0, 30*(1 - energy/(float)(initialEnergy*2)))),
+       //         (int)(170 + Math.max(0, 60*(1 - energy/(float)(initialEnergy*2)))));
+        // this color is nicer but when i use it differences between animals with high and those with low energy become impossible to spot
     }
 
     public boolean isCarnivore(){
@@ -250,12 +260,21 @@ public class Animal extends AbstractMapElement{
         }
     }
 
+    public ArrayList<Animal> getChildren(){
+        return children;
+    }
+
+    public void addChild(Animal child){
+        children.add(child);
+    }
 
     public void mateWith(Animal other){
         Animal frog = new Animal(mapThatImOn);
         for (ILifeObserver observer : lifeObservers){
             observer.wasBorn(frog);
         }
+        addChild(frog);
+        other.addChild(frog);
         energy-=initialEnergy;
     }
 

@@ -1,7 +1,5 @@
 package agh.cs.animalsim;
 
-import agh.cs.animalsim.swing.Chart;
-
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -44,6 +42,9 @@ public class TropicSimulation implements ILifeObserver {
     public void createGrass(int nutrients){
         Grass grass = new Grass(map, map.upperRightCorner().subtract(map.lowerLeftCorner()).scale(0.5),
                 (int) map.upperRightCorner().subtract(map.lowerLeftCorner()).scale(1).length(), nutrients);
+        for (ILifeObserver observer : observers){
+            observer.wasBorn(grass);
+        }
         map.placeAnyObject(grass);
     }
 

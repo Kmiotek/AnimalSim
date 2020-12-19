@@ -1,5 +1,6 @@
 package agh.cs.animalsim.swing;
 
+import agh.cs.animalsim.Animal;
 import agh.cs.animalsim.IMapElement;
 
 public class SizeSpeedChart extends Chart{
@@ -13,6 +14,9 @@ public class SizeSpeedChart extends Chart{
 
     @Override
     public void died(IMapElement object) {
+        if (! (object instanceof Animal)){
+            return;
+        }
         double currentSpeedSum = axisY.get(1).get(axisY.get(1).size()-1) * numberOfAnimals;
         currentSpeedSum -= object.getSpeed();
 
@@ -29,6 +33,9 @@ public class SizeSpeedChart extends Chart{
 
     @Override
     public void wasBorn(IMapElement object) {
+        if (! (object instanceof Animal)){
+            return;
+        }
         object.registerDeathObserver(this);
         double currentSpeedSum = axisY.get(1).get(axisY.get(1).size()-1) * numberOfAnimals;
         currentSpeedSum += object.getSpeed();

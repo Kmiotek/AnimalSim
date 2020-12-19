@@ -10,17 +10,19 @@ public class HighlightManager extends JPanel implements ActionListener {
     protected JSpinner ticksSpinner;
     protected TropicSimulationEngine engine;
 
+    JButton startStop;
+
     public HighlightManager(TropicSimulationEngine engine){
         SpinnerModel model =
                 new SpinnerNumberModel(500, 0, 1000000, 10);
         ticksSpinner = addLabeledSpinner("How long do you want to run with this animal highlighted?", model);
         ticksSpinner.setEditor(new JSpinner.NumberEditor(ticksSpinner, "#"));
 
-        JButton start3 = new JButton("Run simulation");
-        start3.setActionCommand("startN");
-        start3.addActionListener(this);
-        start3.setFont(new Font("Arial", Font.PLAIN, 20));
-        add(start3);
+        startStop = new JButton("Run simulation");
+        startStop.setActionCommand("start");
+        startStop.addActionListener(this);
+        startStop.setFont(new Font("Arial", Font.PLAIN, 20));
+        add(startStop);
 
         this.engine = engine;
 
@@ -43,7 +45,9 @@ public class HighlightManager extends JPanel implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent event) {
-        if ("startN".equals(event.getActionCommand())) {
+        if ("start".equals(event.getActionCommand())) {
+            startStop.setActionCommand("stop");
+            startStop.setText("Stop highlight");
             try {
                 ticksSpinner.commitEdit();
             } catch (java.text.ParseException e) {
@@ -51,6 +55,10 @@ public class HighlightManager extends JPanel implements ActionListener {
                 System.out.println(e.getLocalizedMessage());
             }
             engine.startHighlightedSimulation((Integer) ticksSpinner.getValue());
+        } else if ("stop".equals(event.getActionCommand())) {
+            startStop.setActionCommand("start");
+            startStop.setText("Run simulation");
+            engine.stopHighlightedSimulation();
         }
     }
 }

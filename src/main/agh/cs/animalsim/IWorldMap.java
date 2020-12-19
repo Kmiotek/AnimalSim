@@ -64,5 +64,5 @@ public interface IWorldMap {
 
     Set<IMapElement> objectsAt(Vector2d position);
 
-    IMapElement objectClosestTo(Vector2d position);
+    Animal animalClosestTo(Vector2d position);
 }

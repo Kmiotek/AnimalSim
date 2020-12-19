@@ -142,6 +142,8 @@ public class TropicAnimal extends Animal {
         for (ILifeObserver observer : lifeObservers){
             observer.wasBorn(frog);
         }
+        addChild(frog);
+        other.addChild(frog);
         energy-=initialEnergy;
     }
 
