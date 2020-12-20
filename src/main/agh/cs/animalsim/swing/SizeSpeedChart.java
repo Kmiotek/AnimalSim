@@ -8,7 +8,7 @@ public class SizeSpeedChart extends Chart{
 
     public SizeSpeedChart(TropicSimulationEngine engine, String title, double[][] initialDataY,
                           int initialNumberOfAnimals) {
-        super(engine, title, new String[]{"Size", "Speed"}, new double[][]{new double[]{0}, new double[]{0}}, initialDataY);
+        super(engine, title, new String[]{"Size", "Speed"}, new double[][]{new double[]{0}, new double[]{0}}, initialDataY, 600, 725);
         numberOfAnimals = initialNumberOfAnimals;
     }
 

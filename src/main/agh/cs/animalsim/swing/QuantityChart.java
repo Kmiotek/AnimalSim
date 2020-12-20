@@ -2,13 +2,25 @@ package agh.cs.animalsim.swing;
 
 import agh.cs.animalsim.IMapElement;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
-public class QuantityChart extends Chart {
+
+public class QuantityChart extends Chart implements ItemListener {
+
+    JCheckBox box;
 
     public QuantityChart(TropicSimulationEngine engine, String title, double[] initialDataHerbivores,
                          double[] initialDataCarnivores, double[] initialDataGrass) {
         super(engine, title, new String[] {"Herbivores", "Carnivores", "Grass"},new double[][]{new double[]{0}, new double[]{0}, new double[]{0}},
-                new double[][] {initialDataHerbivores, initialDataCarnivores, initialDataGrass});
+                new double[][] {initialDataHerbivores, initialDataCarnivores, initialDataGrass}, 600, 700);
+        setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+        box = new JCheckBox("Show grass");
+        box.addItemListener(this);
+        box.setSelected(true);
+        add(box);
     }
 
     @Override
@@ -54,5 +66,22 @@ public class QuantityChart extends Chart {
         }
     }
 
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        Object source = e.getItemSelectable();
+        if (source == box) {
+            if (e.getStateChange() == ItemEvent.DESELECTED){
+                active.set(2, false);
+            } else {
+                active.set(2, true);
+            }
+            chart.resetFilter();
+            updateChart();
+        }
+    }
 
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(600, 725);
+    }
 }

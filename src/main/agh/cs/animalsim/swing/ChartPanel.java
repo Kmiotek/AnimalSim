@@ -31,7 +31,7 @@ public class ChartPanel extends JPanel implements ActionListener {
                 numberOfHerbivores+numberOfCarnivores);
         highlightPanel = new HighlightPanel(engine);
 
-        buttons = new JPanel();
+        buttons = new ButtonPanel();
         chart1 = new JButton("Quantities");
         chart1.setActionCommand("quantities");
         chart1.addActionListener(this);

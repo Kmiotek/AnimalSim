@@ -19,8 +19,27 @@ public class VectorRandomizer {
         return new Vector2d(x,y);
     }
 
+    public Vector2d randomVectorInRingStupid(Vector2d outerLowerLeft, Vector2d outerUpperRight,
+                                                Vector2d innerLowerLeft, Vector2d innerUpperRight){
+        int x = ThreadLocalRandom.current().nextInt(outerLowerLeft.x, outerUpperRight.x + 1);
+        int y = ThreadLocalRandom.current().nextInt(outerLowerLeft.y, outerUpperRight.y + 1);
+        Vector2d vec = new Vector2d(x,y);
+        while((vec.weakFollows(innerLowerLeft) && vec.weakPrecedes(innerUpperRight)) || map.isOccupied(vec)) {
+            x = ThreadLocalRandom.current().nextInt(outerLowerLeft.x, outerUpperRight.x + 1);
+            y = ThreadLocalRandom.current().nextInt(outerLowerLeft.y, outerUpperRight.y + 1);
+            vec = new Vector2d(x,y);
+        }
+        return vec;
+    }
+
     public Vector2d randomVectorOnMapSmart(){
         return randomVectorInRangeSmart(map.lowerLeftCorner(), map.upperRightCorner());
+    }
+
+    public Vector2d randomVectorInRingHalfSmart(Vector2d outerLowerLeft, Vector2d outerUpperRight,
+                                             Vector2d innerLowerLeft, Vector2d innerUpperRight){
+        double chanceForInnerPoint = Math.pow(innerLowerLeft.dist(innerUpperRight)/outerLowerLeft.dist(outerUpperRight),2);
+        return null; // TODO maybe do this?
     }
 
     public Vector2d randomVectorInRangeSmart(Vector2d lowerLeft, Vector2d upperRight){ // this is so slooooow

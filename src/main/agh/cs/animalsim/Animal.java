@@ -176,11 +176,11 @@ public class Animal extends AbstractMapElement{
     @Override
     public Color getColor() {
         if (carnivore){
-            return new Color(255, (int)Math.max(0, 200*(1 - energy/(float)(initialEnergy*2))),
-                    (int)Math.max(0, 200*(1 - energy/(float)(initialEnergy*2))));
+            return new Color(255, (int)Math.max(0, Math.min(200, 200*(1 - energy/(float)(initialEnergy*2)))),
+                    (int)Math.max(0, Math.min(200, 200*(1 - energy/(float)(initialEnergy*2)))));
         }
-        return new Color((int)Math.max(0, 200*(1 - energy/(float)(initialEnergy*2))),
-                (int)Math.max(0, 200*(1 - energy/(float)(initialEnergy*2))),
+        return new Color((int)Math.max(0, Math.min(200, 200*(1 - energy/(float)(initialEnergy*2)))),
+                (int)Math.max(0, Math.min(200, 200*(1 - energy/(float)(initialEnergy*2)))),
                 255);
         //return new Color((int)Math.max(0, 200*(1 - energy/(float)(initialEnergy*2))),
          //       (int)(200 + Math.max(0, 30*(1 - energy/(float)(initialEnergy*2)))),

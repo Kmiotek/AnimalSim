@@ -48,11 +48,9 @@ public class HighlightPanel extends JPanel implements ILifeObserver {
 
         chart = new PieChartBuilder().width(600).height(400).title("Descendant type").build();
 
-        // Customize Chart
-        Color[] sliceColors = new Color[] { Color.RED, Color.CYAN};
+        Color[] sliceColors = new Color[] { Color.RED, Color.BLUE};
         chart.getStyler().setSeriesColors(sliceColors);
 
-        // Series
         chart.addSeries("Carnivores", 0);
         chart.addSeries("Herbivores", 0);
 
@@ -68,6 +66,9 @@ public class HighlightPanel extends JPanel implements ILifeObserver {
             if (!engine.getHighlighted().isDead()){
                 statusL.setText("Alive");
                 diedIn.setVisible(false);
+            } else {
+                statusL.setText("Dead");
+                diedIn.setVisible(true);
             }
             numberOfChildrenL.setText(String.valueOf(engine.getHighlighted().getChildren().size()));
             numberOfDescendantsL.setText(String.valueOf(descendants.size()));
@@ -140,8 +141,6 @@ public class HighlightPanel extends JPanel implements ILifeObserver {
     @Override
     public void died(IMapElement object) {
         if (object == engine.getHighlighted()){
-            statusL.setText("Dead");
-            diedIn.setVisible(true);
             diedInL.setText(String.valueOf(engine.getGeneration()));
         }
         update();
@@ -155,6 +154,6 @@ public class HighlightPanel extends JPanel implements ILifeObserver {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(600, 725);
+        return new Dimension(600, 750);
     }
 }

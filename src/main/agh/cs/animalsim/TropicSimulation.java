@@ -9,7 +9,7 @@ public class TropicSimulation implements ILifeObserver {
     private ArrayList<IMapElement> elementsForDeleting;
     private ArrayList<IMapElement> elementsForAdding;
 
-    private IWorldMap map;
+    private TropicMap map;
 
     private VectorRandomizer randomizer;
 
@@ -17,7 +17,7 @@ public class TropicSimulation implements ILifeObserver {
 
     ArrayList<ILifeObserver> observers;
 
-    public TropicSimulation(IWorldMap map, ArrayList<ILifeObserver> observers, double grassPerTick){
+    public TropicSimulation(TropicMap map, ArrayList<ILifeObserver> observers, double grassPerTick){
         this.map = map;
         elementsForDeleting = new ArrayList<>();
         elementsForUpdating = new ArrayList<>();
@@ -40,12 +40,19 @@ public class TropicSimulation implements ILifeObserver {
     }
 
     public void createGrass(int nutrients){
-        Grass grass = new Grass(map, map.upperRightCorner().subtract(map.lowerLeftCorner()).scale(0.5),
-                (int) map.upperRightCorner().subtract(map.lowerLeftCorner()).scale(1).length(), nutrients);
+        Grass grass = new Grass(map,
+                randomizer.randomVectorInRangeStupid(map.junglePos(), map.junglePos().add(map.jungleSize)),
+                nutrients);
+        Grass grass2 = new Grass(map,
+                randomizer.randomVectorInRingStupid(map.lowerLeftCorner(), map.upperRightCorner(),
+                        map.junglePos(), map.junglePos().add(map.jungleSize)),
+                nutrients);
         for (ILifeObserver observer : observers){
             observer.wasBorn(grass);
+            observer.wasBorn(grass2);
         }
         map.placeAnyObject(grass);
+        map.placeAnyObject(grass2);
     }
 
     public void update(){
