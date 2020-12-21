@@ -10,9 +10,9 @@ import java.util.ArrayList;
 
 public class ChartPanel extends JPanel implements ActionListener {
     Chart numberChart;
-    Chart emptyChart;
+    Chart traitsChart;
 
-    HighlightPanel highlightPanel;
+    HighlightStatisticsPanel highlightStatisticsPanel;
 
     JButton chart1;
     JButton chart2;
@@ -27,9 +27,9 @@ public class ChartPanel extends JPanel implements ActionListener {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         numberChart = new QuantityChart(engine, "Herbivores and carnivores", new double[]{numberOfHerbivores},
                 new double[]{numberOfCarnivores}, new double[]{0});
-        emptyChart = new SizeSpeedChart(engine, "Average speed and size", new double[][]{new double[]{10}, new double[]{10}},
+        traitsChart = new TraitsChart(engine, "Average speed and size", new double[][]{new double[]{10}, new double[]{10}},
                 numberOfHerbivores+numberOfCarnivores);
-        highlightPanel = new HighlightPanel(engine);
+        highlightStatisticsPanel = new HighlightStatisticsPanel(engine);
 
         buttons = new ButtonPanel();
         chart1 = new JButton("Quantities");
@@ -52,10 +52,10 @@ public class ChartPanel extends JPanel implements ActionListener {
 
         charts = new JPanel();
         charts.add(numberChart);
-        charts.add(emptyChart);
-        emptyChart.setVisible(false);
-        charts.add(highlightPanel);
-        highlightPanel.setVisible(false);
+        charts.add(traitsChart);
+        traitsChart.setVisible(false);
+        charts.add(highlightStatisticsPanel);
+        highlightStatisticsPanel.setVisible(false);
         add(buttons);
         add(charts);
 
@@ -64,19 +64,19 @@ public class ChartPanel extends JPanel implements ActionListener {
     public ArrayList<ILifeObserver> getChartsAsObservers(){
         ArrayList<ILifeObserver> ret = new ArrayList<>();
         ret.add(numberChart);
-        ret.add(emptyChart);
-        ret.add(highlightPanel);
+        ret.add(traitsChart);
+        ret.add(highlightStatisticsPanel);
         return ret;
     }
 
-    public void setHighlightPanelVisible(){
+    public void setHighlightPanelButtonVisible(){
         chart3.setVisible(true);
-        highlightPanel.update();
+        highlightStatisticsPanel.update();
     }
 
-    public void setHighlightPanelInvisible(){
+    public void setHighlightPanelButtonInvisible(){
         chart3.setVisible(false);
-        highlightPanel.update();
+        highlightStatisticsPanel.update();
     }
 
     @Override
@@ -95,7 +95,7 @@ public class ChartPanel extends JPanel implements ActionListener {
                 for (Component comp : charts.getComponents()){
                     comp.setVisible(false);
                 }
-                emptyChart.setVisible(true);
+                traitsChart.setVisible(true);
             }
         } else if ("highlighted".equals(e.getActionCommand())) {
             if (current != 3) {
@@ -103,8 +103,8 @@ public class ChartPanel extends JPanel implements ActionListener {
                 for (Component comp : charts.getComponents()){
                     comp.setVisible(false);
                 }
-                highlightPanel.setVisible(true);
-                highlightPanel.update();
+                highlightStatisticsPanel.setVisible(true);
+                highlightStatisticsPanel.update();
             }
         }
     }

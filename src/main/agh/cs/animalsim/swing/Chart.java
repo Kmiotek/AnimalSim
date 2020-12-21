@@ -4,10 +4,8 @@ import agh.cs.animalsim.ILifeObserver;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
-import org.knowm.xchart.XYSeries;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 
 public abstract class Chart extends JPanel implements ILifeObserver{
@@ -15,36 +13,29 @@ public abstract class Chart extends JPanel implements ILifeObserver{
     protected TropicSimulationEngine engine;
 
     protected ArrayList<String> seriesNames;
-    protected ArrayList< ArrayList<Double> > axisX;
-    protected ArrayList< ArrayList<Double> > axisY;
-    private ArrayList<XYSeries> series;
-    protected ArrayList<Boolean> active;
+    protected ArrayList< ArrayList<Double> > seriesAxesX;
+    protected ArrayList< ArrayList<Double> > seriesAxesY;
 
     XChartPanel<XYChart> chartPane;
 
     String title;
-    int height;
 
     public Chart(TropicSimulationEngine engine, String title, String[] seriesNames, double[][] initialDataX, double[][] initialDataY,
                  int width, int height) {
-        axisX = new ArrayList<>();
-        axisY = new ArrayList<>();
+        seriesAxesX = new ArrayList<>();
+        seriesAxesY = new ArrayList<>();
         this.seriesNames = new ArrayList<>();
         this.title = title;
-        this.height = height;
-        active = new ArrayList<>();
-        series = new ArrayList<>();
-        for (int s = 0;s<seriesNames.length; s++) {
+        for (int series = 0; series < seriesNames.length; series++) {
             ArrayList<Double> listX = new ArrayList<>();
             ArrayList<Double> listY = new ArrayList<>();
-            for (int i =0;i<initialDataX[s].length;i++){
-                listX.add(initialDataX[s][i]);
-                listY.add(initialDataY[s][i]);
+            for (int i =0;i<initialDataX[series].length;i++){
+                listX.add(initialDataX[series][i]);
+                listY.add(initialDataY[series][i]);
             }
-            axisX.add(listX);
-            axisY.add(listY);
-            this.seriesNames.add(seriesNames[s]);
-            active.add(true);
+            seriesAxesX.add(listX);
+            seriesAxesY.add(listY);
+            this.seriesNames.add(seriesNames[series]);
         }
 
         this.engine = engine;
@@ -56,19 +47,26 @@ public abstract class Chart extends JPanel implements ILifeObserver{
 
     }
 
+    public void enableSeries(String seriesName){
+        chart.getSeriesMap().get(seriesName).setEnabled(true);
+    }
+
+    public void disableSeries(String seriesName){
+        chart.getSeriesMap().get(seriesName).setEnabled(false);
+    }
+
 
     protected void addToChart(){
         for (int i = 0; i < seriesNames.size(); i++) {
-            series.add(chart.addSeries(seriesNames.get(i), toPrimitive(axisX.get(i).toArray(new Double[0])),
-                    toPrimitive(axisY.get(i).toArray(new Double[0]))));
+            chart.addSeries(seriesNames.get(i), toPrimitive(seriesAxesX.get(i).toArray(new Double[0])),
+                    toPrimitive(seriesAxesY.get(i).toArray(new Double[0])));
         }
     }
 
-    protected void updateChart() {
+    protected void updateChart() {      // this is baaad
         for (int i = 0; i < seriesNames.size(); i++) {
-            chart.updateXYSeries(seriesNames.get(i), toPrimitive(axisX.get(i).toArray(new Double[0])),
-                    toPrimitive(axisY.get(i).toArray(new Double[0])), null);
-            series.get(i).setEnabled(active.get(i));
+            chart.updateXYSeries(seriesNames.get(i), toPrimitive(seriesAxesX.get(i).toArray(new Double[0])),
+                    toPrimitive(seriesAxesY.get(i).toArray(new Double[0])), null);
         }
         chartPane.revalidate();
         repaint();
@@ -82,8 +80,4 @@ public abstract class Chart extends JPanel implements ILifeObserver{
         return result;
     }
 
-    @Override
-    public Dimension getPreferredSize() {
-        return new Dimension(600, height);
-    }
 }

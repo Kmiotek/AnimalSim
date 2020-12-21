@@ -8,9 +8,9 @@ public class TropicMap extends AbstractWorldMap{
     public final Vector2d size;
     public Vector2d jungleSize;
 
-    public TropicMap(int sizex, int sizey, int jungleSizeX, int jungleSizeY){
+    public TropicMap(int sizeX, int sizeY, int jungleSizeX, int jungleSizeY){
         super();
-        this.size = new Vector2d(sizex, sizey);
+        this.size = new Vector2d(sizeX, sizeY);
         this.jungleSize = new Vector2d(jungleSizeX, jungleSizeY);
 
     }

@@ -30,7 +30,7 @@ public class TropicMapTest {
 
     @Test
     public void grassAndAnimalTest(){
-        GrassField map = new GrassField(0);
+        TropicMap map = new TropicMap(5,5,0,0);
         Grass clover = new Grass(map, v_2_3);
         Assertions.assertTrue(map.placeAnyObject(clover));
         Assertions.assertTrue(map.isOccupied(v_2_3));
@@ -38,7 +38,7 @@ public class TropicMapTest {
         Animal hedgehog = new Animal(map, v_2_3);
         Assertions.assertTrue(map.placeAnyObject(hedgehog));
         Assertions.assertSame(map.objectAt(v_2_3), hedgehog);
-        hedgehog.move(MoveDirection.FORWARD);
+        hedgehog.moveInDirection(MoveDirection.FORWARD);
         Assertions.assertSame(map.objectAt(v_2_3), clover);
         Assertions.assertSame(map.objectAt(v_2_3.add(new Vector2d(0, 1))), hedgehog);
     }

@@ -7,14 +7,14 @@ public abstract class AbstractMapElement implements IMapElement{
 
     protected Vector2d position;
     protected IWorldMap mapThatImOn;
-    protected ArrayList<IPositionChangeObserver> positionObservers;
+    protected ArrayList<IPositionChangeObserver> positionChangeObservers;
     protected ArrayList<ICollisionObserver> collisionObservers;
     protected ArrayList<ILifeObserver> lifeObservers;
     protected int size;
     protected boolean highlighted = false;
 
     public AbstractMapElement(IWorldMap map, Vector2d initialPosition){
-        positionObservers = new ArrayList<>();
+        positionChangeObservers = new ArrayList<>();
         collisionObservers = new ArrayList<>();
         lifeObservers = new ArrayList<>();
         mapThatImOn = map;
@@ -53,14 +53,14 @@ public abstract class AbstractMapElement implements IMapElement{
 
     @Override
     public void moved(Vector2d oldPosition) {
-        for (IPositionChangeObserver posObs : positionObservers) {
+        for (IPositionChangeObserver posObs : positionChangeObservers) {
             posObs.positionChanged(oldPosition, this);
         }
     }
 
     @Override
     public void registerPositionObserver(IPositionChangeObserver observer) {
-        this.positionObservers.add(observer);
+        this.positionChangeObservers.add(observer);
     }
 
     @Override
@@ -69,7 +69,7 @@ public abstract class AbstractMapElement implements IMapElement{
     }
 
     @Override
-    public void registerDeathObserver(ILifeObserver observer){
+    public void registerLifeObserver(ILifeObserver observer){
         this.lifeObservers.add(observer);
     }
 
@@ -93,22 +93,12 @@ public abstract class AbstractMapElement implements IMapElement{
     @Override
     public boolean isCarnivore(){
         return false;
-    }
+    }   // everything can be carnivorous, even plants! (as in real world)
 
     @Override
     public boolean isGrassy() {
         return false;
-    }
-
-    @Override
-    public boolean isReadyToMate() {
-        return false;
-    }
-
-    @Override
-    public int getSpeed(){
-        return 0;
-    }
+    }   // this means that herbivore can eat it
 
     @Override
     public int getSize(){
@@ -121,7 +111,7 @@ public abstract class AbstractMapElement implements IMapElement{
     }
 
     @Override
-    public void go(){
+    public void update(){
 
     }
 }

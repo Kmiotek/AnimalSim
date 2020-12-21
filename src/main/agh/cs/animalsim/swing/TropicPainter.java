@@ -12,8 +12,13 @@ public class TropicPainter extends JPanel {
     protected final Color savannaColor = new Color(128, 123, 5);
     protected final Color jungleColor  = new Color(60, 100, 5);
 
+    Vector2d upperRightOffset;
+    Vector2d lowerLeftOffset;
+
     public TropicPainter(IWorldMap map){
         this.map = map;
+        lowerLeftOffset = new Vector2d(10, 10);
+        upperRightOffset = new Vector2d(10, 10);
     }
 
     @Override
@@ -21,8 +26,8 @@ public class TropicPainter extends JPanel {
         Vector2d panelSize = new Vector2d(getSize().width, getSize().height);
         TropicMap map1 = (TropicMap) map;
         setBackground(Color.WHITE);
-        Vector2d upperRight = new Vector2d(panelSize.x-10, panelSize.y-10);
-        Vector2d lowerLeft = new Vector2d(10, 10);
+        Vector2d upperRight = new Vector2d(panelSize.x, panelSize.y).subtract(upperRightOffset);
+        Vector2d lowerLeft = lowerLeftOffset;
         Vector2f scale = new Vector2f((upperRight.x-lowerLeft.x)/(double)(map.upperRightCorner().x - map.lowerLeftCorner().x),
                 (upperRight.y- lowerLeft.y)/(double)(map.upperRightCorner().y - map.lowerLeftCorner().y));
 
@@ -44,8 +49,8 @@ public class TropicPainter extends JPanel {
 
     public Vector2d getMapPosition(Vector2d panelPosition){
         Vector2d panelSize = new Vector2d(getSize().width, getSize().height);
-        Vector2d upperRight = new Vector2d(panelSize.x-10, panelSize.y-10);
-        Vector2d lowerLeft = new Vector2d(10, 10);
+        Vector2d upperRight = new Vector2d(panelSize.x, panelSize.y).subtract(upperRightOffset);
+        Vector2d lowerLeft = lowerLeftOffset;
         Vector2f scale = new Vector2f((double)(map.upperRightCorner().x - map.lowerLeftCorner().x)/(upperRight.x-lowerLeft.x),
                 (double)(map.upperRightCorner().y - map.lowerLeftCorner().y)/(upperRight.y- lowerLeft.y));
         Vector2d relativePos = panelPosition.subtract(lowerLeft);

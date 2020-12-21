@@ -19,7 +19,6 @@ public interface IWorldMap {
      *
      * This now assumes priority of the object = 1 - Jakub Kmiecik
      */
-    boolean canMoveTo(Vector2d position);
 
     boolean canThisMoveTo(Vector2d position, IMapElement object);
 
@@ -39,6 +38,8 @@ public interface IWorldMap {
     Vector2d lowerLeftCorner();
 
     Vector2d upperRightCorner();
+
+    Vector2d getDimensions();
 
     boolean placeAnyObject(IMapElement object);
 

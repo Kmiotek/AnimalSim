@@ -17,27 +17,26 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
     private ChartPanel chartPanel;
     private JMenuBar menuBar;
     private IWorldMap map;
-    private TropicSimulation updater;
+    private SimulatedObjectsManager simulatedObjectsManager;
     private JFrame frame;
-    private HighlightManager manager;
+    private HighlightManagementPanel highlightManager;
 
     private boolean paused = true;
     private boolean running = true;
-    private boolean timeBound = false;
-
-    private int timer = 0;
-
     private int FPS = 30;
+
     private int generation = 0;
 
+    private boolean runningWithHighlight = false;
     private Animal highlighted = null;
+    private int highlightedTimer = 0;
 
     public TropicSimulationEngine(TropicMap map, int numberOfHerbivores, int numberOfCarnivores, double grassPerTick,
-                                  int initialSize, int initialSpeed, int initialEnergy, int meatQuality, int vision){
+                                  int initialSize, int initialSpeed, int moveEfficiency, int initialEnergy, int meatQuality, int vision){
         painter = new TropicPainter(map);
         menuBar = new JMenuBar();
 
-        manager = new HighlightManager(this);
+        highlightManager = new HighlightManagementPanel(this);
         chartPanel = new ChartPanel(numberOfHerbivores, numberOfCarnivores, this);
 
         JMenu startMenu = new JMenu("Simulation");
@@ -73,12 +72,12 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
         startMenuItemGo.addActionListener(this);
         this.map = map;
 
-        updater = new TropicSimulation(map, chartPanel.getChartsAsObservers(), grassPerTick);
+        simulatedObjectsManager = new SimulatedObjectsManager(map, chartPanel.getChartsAsObservers(), grassPerTick);
         for (int i =0;i<numberOfHerbivores;i++){
-            updater.createAnimal(false, initialSize, initialSpeed, initialEnergy, meatQuality, 10, 50, vision);
+            simulatedObjectsManager.createAnimal(false, initialSize, initialSpeed, initialEnergy, meatQuality, moveEfficiency, 50, vision);
         }
         for (int i =0;i<numberOfCarnivores;i++){
-            updater.createAnimal(true, initialSize, initialSpeed, initialEnergy, meatQuality, 10, 60, vision);
+            simulatedObjectsManager.createAnimal(true, initialSize, initialSpeed, initialEnergy, meatQuality, moveEfficiency, 60, vision);
         }
     }
 
@@ -92,8 +91,8 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
 
         frame.add(painter, BorderLayout.CENTER);
         frame.add(chartPanel, BorderLayout.LINE_START);
-        frame.add(manager, BorderLayout.PAGE_END);
-        manager.setVisible(false);
+        frame.add(highlightManager, BorderLayout.PAGE_END);
+        highlightManager.setVisible(false);
 
         frame.setJMenuBar(menuBar);
         frame.setLocationRelativeTo(null);
@@ -114,10 +113,6 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
         animator.start();
     }
 
-    private void disableManager(){
-        manager.setVisible(false);
-    }
-
     @Override
     public void run() {
         long beforeTime, timeDiff, sleep;
@@ -127,16 +122,17 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
         while (running) {
 
             if (!paused) {
-                if (timeBound){
-                    timer--;
-                    if (timer < 0){
-                        manager.actionPerformed(new ActionEvent(this, 99, "stop"));
+                if (runningWithHighlight){
+                    highlightedTimer--;
+                    if (highlightedTimer < 0){
+                        highlightManager.actionPerformed(new ActionEvent(this, 99, "stop"));
                     }
                 }
                 generation++;
-                updater.update();
+                simulatedObjectsManager.update();
+                painter.repaint();
             }
-            painter.repaint();
+
 
             timeDiff = System.currentTimeMillis() - beforeTime;
             int DELAY = 1000/FPS;
@@ -165,8 +161,12 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
     public void actionPerformed(ActionEvent e) {
         if ("stop".equals(e.getActionCommand())) {
             paused = true;
+            if (highlighted != null)
+                enableHighlightManager();
         } else if ("start".equals(e.getActionCommand())) {
             paused = false;
+            if (!runningWithHighlight)
+                disableHighlightManager();
         }
     }
 
@@ -187,7 +187,7 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
 
     @Override
     public void mousePressed(MouseEvent e) {
-        if (timeBound){
+        if (runningWithHighlight){
             return;
         }
         Animal h = map.animalClosestTo(painter.getMapPosition(new Vector2d(e.getX(), e.getY())));
@@ -198,12 +198,13 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
         if (highlighted != null) {
             highlighted.setHighlighted(true);
             if (paused) {
-                manager.setVisible(true);
+                enableHighlightManager();
             }
-            chartPanel.setHighlightPanelVisible();
+            chartPanel.setHighlightPanelButtonVisible();
+            painter.repaint();
         } else {
-            disableManager();
-            chartPanel.setHighlightPanelInvisible();
+            disableHighlightManager();
+            chartPanel.setHighlightPanelButtonInvisible();
         }
     }
 
@@ -223,14 +224,22 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
     }
 
     public void startHighlightedSimulation(int ticks){
-        timeBound = true;
-        timer = ticks;
+        runningWithHighlight = true;
+        highlightedTimer = ticks;
         paused = false;
     }
 
     public void stopHighlightedSimulation(){
-        timeBound = false;
+        runningWithHighlight = false;
         paused = true;
+    }
+
+    private void disableHighlightManager(){
+        highlightManager.setVisible(false);
+    }
+
+    private void enableHighlightManager(){
+        highlightManager.setVisible(true);
     }
 
     public int getGeneration(){

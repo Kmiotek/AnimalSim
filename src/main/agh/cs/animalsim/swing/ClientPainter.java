@@ -8,74 +8,67 @@ import java.awt.event.ActionListener;
 
 public class ClientPainter extends JPanel implements ActionListener {
 
-    protected JButton start;
-    protected JSpinner energySpinner;
-    protected JSpinner sizeSpinner;
-    protected JSpinner speedSpinner;
-    protected JSpinner meatQualitySpinner;
-    protected JSpinner visionSpinner;
-    protected JSpinner jungleSizeSpinner;
+    private JButton start;
+    private JSpinner energySpinner;
+    private JSpinner sizeSpinner;
+    private JSpinner speedSpinner;
+    private JSpinner meatQualitySpinner;
+    private JSpinner visionSpinner;
+    private JSpinner jungleSizeSpinner;
+    private JSpinner moveEfficiencySpinner;
+    private JSpinner numberOfAnimalsSpinner;
+    private JSpinner grassPerTickSpinner;
 
-    protected JSpinner numberOfAnimalsSpinner;
-    protected JSpinner grassPerTickSpinner;
-
-    protected JSpinner sizeXSpinner;
-    protected JSpinner sizeYSpinner;
+    private JSpinner sizeXSpinner;
+    private JSpinner sizeYSpinner;
 
     public ClientPainter(){
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        SpinnerModel model7 =
-                new SpinnerNumberModel(1600, 0, 10000, 10);
-        sizeXSpinner = addLabeledSpinner("Map Width", model7);
-        sizeXSpinner.setEditor(new JSpinner.NumberEditor(sizeXSpinner, "#"));
+        sizeXSpinner = addLabeledSpinner("Map Width",
+                new SpinnerNumberModel(1600, 0, 10000, 10),
+                "#");
 
-        SpinnerModel model8 =
-                new SpinnerNumberModel(1800, 0, 10000, 10);
-        sizeYSpinner = addLabeledSpinner("Map Height", model8);
-        sizeYSpinner.setEditor(new JSpinner.NumberEditor(sizeYSpinner, "#"));
+        sizeYSpinner = addLabeledSpinner("Map Height",
+                new SpinnerNumberModel(1800, 0, 10000, 10),
+                "#");
 
-        SpinnerModel model5 =
-                new SpinnerNumberModel(10, 0, 1000, 1);
-        numberOfAnimalsSpinner = addLabeledSpinner("Number of Herbivores", model5);
-        numberOfAnimalsSpinner.setEditor(new JSpinner.NumberEditor(numberOfAnimalsSpinner, "#"));
+        numberOfAnimalsSpinner = addLabeledSpinner("Number of Herbivores",
+                new SpinnerNumberModel(10, 0, 1000, 1),
+                "#");
 
-        SpinnerModel model6 =
-                new SpinnerNumberModel(1, 0, 100, 0.01);
-        grassPerTickSpinner = addLabeledSpinner("Added Grass per Tick", model6);
-        grassPerTickSpinner.setEditor(new JSpinner.NumberEditor(grassPerTickSpinner, "#.##"));
+        grassPerTickSpinner = addLabeledSpinner("Added Grass per Tick",
+                new SpinnerNumberModel(2, 0, 100, 0.01),
+                "#.##");
 
-        SpinnerModel model =
-                new SpinnerNumberModel(50000, 0, 1000000, 10);
-        energySpinner = addLabeledSpinner("Initial Energy", model);
-        energySpinner.setEditor(new JSpinner.NumberEditor(energySpinner, "#"));
+        energySpinner = addLabeledSpinner("Initial Energy",
+                new SpinnerNumberModel(50000, 0, 1000000, 10),
+                "#");
 
-        SpinnerModel model2 =
-                new SpinnerNumberModel(10, 0, 1000, 1);
-        sizeSpinner = addLabeledSpinner("Initial Size", model2);
-        sizeSpinner.setEditor(new JSpinner.NumberEditor(sizeSpinner, "#"));
+        sizeSpinner = addLabeledSpinner("Initial Size",
+                new SpinnerNumberModel(10, 0, 1000, 1),
+                "#");
 
-        SpinnerModel model3 =
-                new SpinnerNumberModel(10, 0, 1000, 1);
-        speedSpinner = addLabeledSpinner("Initial Speed", model3);
-        speedSpinner.setEditor(new JSpinner.NumberEditor(speedSpinner, "#"));
+        speedSpinner = addLabeledSpinner("Initial Speed",
+                new SpinnerNumberModel(10, 0, 1000, 1),
+                "#");
 
-        SpinnerModel model9 =
-                new SpinnerNumberModel(50, 0, 10000, 1);
-        visionSpinner = addLabeledSpinner("Vision", model9);
-        visionSpinner.setEditor(new JSpinner.NumberEditor(visionSpinner, "#"));
+        moveEfficiencySpinner = addLabeledSpinner("Move efficiency",
+                new SpinnerNumberModel(10, 0, 100, 1),
+                "#");
 
-        SpinnerModel model4 =
-                new SpinnerNumberModel(2000, 0, 100000, 10);
-        meatQualitySpinner = addLabeledSpinner("Meat Quality", model4);
-        meatQualitySpinner.setEditor(new JSpinner.NumberEditor(meatQualitySpinner, "#"));
+        visionSpinner = addLabeledSpinner("Vision",
+                new SpinnerNumberModel(50, 0, 10000, 1),
+                "#");
 
-        SpinnerModel model10 =
-                new SpinnerNumberModel(25, 0, 75, 1);
-        jungleSizeSpinner = addLabeledSpinner("Jungle-step ratio [%]", model10);
-        jungleSizeSpinner.setEditor(new JSpinner.NumberEditor(jungleSizeSpinner, "#"));
+        meatQualitySpinner = addLabeledSpinner("Meat Quality",
+                new SpinnerNumberModel(2000, 0, 100000, 10),
+                "#");
 
+        jungleSizeSpinner = addLabeledSpinner("Jungle-step ratio [%]",
+                new SpinnerNumberModel(25, 0, 50, 1),
+                "#");
 
         start = new JButton("Start new simulation");
         start.setActionCommand("start");
@@ -84,12 +77,13 @@ public class ClientPainter extends JPanel implements ActionListener {
 
     }
 
-    protected JSpinner addLabeledSpinner(String label, SpinnerModel model) {
-        JLabel l = new JLabel(label);
-        this.add(l);
+    private JSpinner addLabeledSpinner(String labelString, SpinnerModel model, String decimalFormatPattern) {
+        JLabel label = new JLabel(labelString);
+        this.add(label);
 
         JSpinner spinner = new JSpinner(model);
-        l.setLabelFor(spinner);
+        label.setLabelFor(spinner);
+        spinner.setEditor(new JSpinner.NumberEditor(spinner, decimalFormatPattern));
         this.add(spinner);
 
         return spinner;
@@ -110,6 +104,7 @@ public class ClientPainter extends JPanel implements ActionListener {
                 sizeYSpinner.commitEdit();
                 visionSpinner.commitEdit();
                 jungleSizeSpinner.commitEdit();
+                moveEfficiencySpinner.commitEdit();
             } catch (java.text.ParseException e) {
                 System.out.println("Couldn't update value of spinner");
                 System.out.println(e.getLocalizedMessage());
@@ -120,7 +115,8 @@ public class ClientPainter extends JPanel implements ActionListener {
             TropicMap map = new TropicMap(x, y, (int) (x*ratio), (int) (y*ratio));
             TropicSimulationEngine engine = new TropicSimulationEngine(map, (Integer) numberOfAnimalsSpinner.getValue(),
                     0, (Double) grassPerTickSpinner.getValue(),
-                    (Integer) sizeSpinner.getValue(), (Integer) speedSpinner.getValue(), (Integer) energySpinner.getValue(),
+                    (Integer) sizeSpinner.getValue(), (Integer) speedSpinner.getValue(),
+                    (Integer) moveEfficiencySpinner.getValue(), (Integer) energySpinner.getValue(),
                     (Integer) meatQualitySpinner.getValue(), (Integer) visionSpinner.getValue());
             engine.start();
         }

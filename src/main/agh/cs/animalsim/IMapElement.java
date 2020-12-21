@@ -20,7 +20,7 @@ public interface IMapElement {
 
     void registerCollisionObserver(ICollisionObserver observer);
 
-    void registerDeathObserver(ILifeObserver observer);
+    void registerLifeObserver(ILifeObserver observer);
 
     void died();
 
@@ -34,13 +34,9 @@ public interface IMapElement {
 
     boolean isGrassy();
 
-    boolean isReadyToMate();
-
     void setHighlighted(boolean h);
-
-    int getSpeed();
 
     int getSize();
 
-    void go();
+    void update();
 }

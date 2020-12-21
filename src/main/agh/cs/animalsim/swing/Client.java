@@ -13,15 +13,15 @@ public class Client {
     }
 
     private void createAndShowGUI(){
-        JFrame f=new JFrame("Evolution Client");
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JFrame frame=new JFrame("Evolution Client");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         ClientPainter painter = new ClientPainter();
-        f.setContentPane(painter);
+        frame.setContentPane(painter);
         painter.setOpaque(true);
 
-        f.pack();
-        f.setLocationRelativeTo(null);
-        f.setVisible(true);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
 
 }

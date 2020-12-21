@@ -13,38 +13,34 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
-public class HighlightPanel extends JPanel implements ILifeObserver {
+public class HighlightStatisticsPanel extends JPanel implements ILifeObserver {
 
     TropicSimulationEngine engine;
     XChartPanel<PieChart> chartPane;
     PieChart chart;
 
-    JPanel status;
-    JLabel statusL;
-    JPanel diedIn;
-    JLabel diedInL;
-    JPanel numberOfChildren;
-    JLabel numberOfChildrenL;
-    JPanel numberOfDescendants;
-    JLabel numberOfDescendantsL;
-    JPanel numberOfLivingDescendants;
-    JLabel numberOfLivingDescendantsL;
+    JLabel status;
+    JPanel diedInPanel;
+    JLabel diedIn;
+    JLabel numberOfChildren;
+    JLabel numberOfDescendants;
+    JLabel numberOfLivingDescendants;
 
-    public HighlightPanel(TropicSimulationEngine engine){
+    public HighlightStatisticsPanel(TropicSimulationEngine engine){
         this.engine = engine;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        statusL = new JLabel("Alive");
-        status = addText("Status:", statusL);
-        diedInL = new JLabel("");
-        diedIn = addText("Died in", diedInL);
-        diedIn.setVisible(false);
-        numberOfChildrenL = new JLabel("");
-        numberOfChildren = addText("Number of children", numberOfChildrenL);
-        numberOfDescendantsL = new JLabel("");
-        numberOfDescendants = addText("Number of descendants", numberOfDescendantsL);
-        numberOfLivingDescendantsL = new JLabel("");
-        numberOfLivingDescendants = addText("Living descendants", numberOfLivingDescendantsL);
+        status = new JLabel("Alive");
+        addText("Status:", status);
+        diedIn = new JLabel("");
+        diedInPanel = addText("Died in", diedIn);
+        diedInPanel.setVisible(false);
+        numberOfChildren = new JLabel("");
+        addText("Number of children", numberOfChildren);
+        numberOfDescendants = new JLabel("");
+        addText("Number of descendants", numberOfDescendants);
+        numberOfLivingDescendants = new JLabel("");
+        addText("Living descendants", numberOfLivingDescendants);
 
         chart = new PieChartBuilder().width(600).height(400).title("Descendant type").build();
 
@@ -64,15 +60,15 @@ public class HighlightPanel extends JPanel implements ILifeObserver {
         if (engine.getHighlighted() != null){
             descendants = getAllDescendants();
             if (!engine.getHighlighted().isDead()){
-                statusL.setText("Alive");
-                diedIn.setVisible(false);
+                status.setText("Alive");
+                diedInPanel.setVisible(false);
             } else {
-                statusL.setText("Dead");
-                diedIn.setVisible(true);
+                status.setText("Dead");
+                diedInPanel.setVisible(true);
             }
-            numberOfChildrenL.setText(String.valueOf(engine.getHighlighted().getChildren().size()));
-            numberOfDescendantsL.setText(String.valueOf(descendants.size()));
-            numberOfLivingDescendantsL.setText(String.valueOf(numberOfLivingAnimals(descendants)));
+            numberOfChildren.setText(String.valueOf(engine.getHighlighted().getChildren().size()));
+            numberOfDescendants.setText(String.valueOf(descendants.size()));
+            numberOfLivingDescendants.setText(String.valueOf(numberOfLivingAnimals(descendants)));
             chart.updatePieSeries("Carnivores", numberOfCarnivores((descendants)));
             chart.updatePieSeries("Herbivores", numberOfHerbivores((descendants)));
             repaint();
@@ -80,15 +76,15 @@ public class HighlightPanel extends JPanel implements ILifeObserver {
 
     }
 
-    private JPanel addText(String label, JLabel value){
-        value.setForeground(Color.BLACK);
-        value.setFont(new Font("Arial", Font.PLAIN, 20));
-        JLabel label2 = new JLabel(label);
-        label2.setForeground(Color.BLACK);
-        label2.setFont(new Font("Arial", Font.PLAIN, 20));
+    private JPanel addText(String labelString, JLabel label){
+        label.setForeground(Color.BLACK);
+        label.setFont(new Font("Arial", Font.PLAIN, 20));
+        JLabel descriptionLabel = new JLabel(labelString);
+        descriptionLabel.setForeground(Color.BLACK);
+        descriptionLabel.setFont(new Font("Arial", Font.PLAIN, 20));
         JPanel panel = new JPanel();
-        panel.add(label2);
-        panel.add(value);
+        panel.add(descriptionLabel);
+        panel.add(label);
         add(panel);
         return panel;
     }
@@ -141,14 +137,14 @@ public class HighlightPanel extends JPanel implements ILifeObserver {
     @Override
     public void died(IMapElement object) {
         if (object == engine.getHighlighted()){
-            diedInL.setText(String.valueOf(engine.getGeneration()));
+            diedIn.setText(String.valueOf(engine.getGeneration()));
         }
         update();
     }
 
     @Override
     public void wasBorn(IMapElement object) {
-        object.registerDeathObserver(this);
+        object.registerLifeObserver(this);
         update();
     }
 

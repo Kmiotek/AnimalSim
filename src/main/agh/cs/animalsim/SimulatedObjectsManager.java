@@ -3,7 +3,7 @@ package agh.cs.animalsim;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class TropicSimulation implements ILifeObserver {
+public class SimulatedObjectsManager implements ILifeObserver {
 
     private ArrayList<IMapElement> elementsForUpdating;
     private ArrayList<IMapElement> elementsForDeleting;
@@ -13,17 +13,17 @@ public class TropicSimulation implements ILifeObserver {
 
     private VectorRandomizer randomizer;
 
-    private double grassPerTick;
+    private double doubleGrassPerTick;
 
     ArrayList<ILifeObserver> observers;
 
-    public TropicSimulation(TropicMap map, ArrayList<ILifeObserver> observers, double grassPerTick){
+    public SimulatedObjectsManager(TropicMap map, ArrayList<ILifeObserver> observers, double grassPerTick){
         this.map = map;
         elementsForDeleting = new ArrayList<>();
         elementsForUpdating = new ArrayList<>();
         elementsForAdding = new ArrayList<>();
         randomizer = new VectorRandomizer(map);
-        this.grassPerTick = grassPerTick;
+        this.doubleGrassPerTick = grassPerTick/2;
         this.observers = observers;
     }
 
@@ -32,9 +32,9 @@ public class TropicSimulation implements ILifeObserver {
         TropicAnimal squirrel = new TropicAnimal(map, randomizer.randomVectorOnMapSmart(), carnivore, speed, size,
                 initialEnergy, meatQuality, moveEfficiency, chanceOfLooking, vision);
         elementsForUpdating.add(squirrel);
-        squirrel.registerDeathObserver(this);
+        squirrel.registerLifeObserver(this);
         for (ILifeObserver observer : observers){
-            squirrel.registerDeathObserver(observer);
+            squirrel.registerLifeObserver(observer);
         }
         map.place(squirrel);
     }
@@ -57,9 +57,9 @@ public class TropicSimulation implements ILifeObserver {
 
     public void update(){
         for (IMapElement element : elementsForUpdating){
-            element.go();
+            element.update();
         }
-        double tmp = grassPerTick;
+        double tmp = doubleGrassPerTick;
         while(tmp > 1){
             createGrass(7000);
             tmp-=1;
@@ -81,7 +81,7 @@ public class TropicSimulation implements ILifeObserver {
     @Override
     public void wasBorn(IMapElement object) {
         elementsForAdding.add(object);
-        object.registerDeathObserver(this);
+        object.registerLifeObserver(this);
     }
 
 }

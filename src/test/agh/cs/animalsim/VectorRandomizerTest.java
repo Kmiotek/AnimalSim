@@ -8,7 +8,7 @@ public class VectorRandomizerTest {
 
     @Test
     public void randomVectorInRangeSmartTest(){
-        GrassField map = new GrassField(0);
+        TropicMap map = new TropicMap(5,5,0,0);
         VectorRandomizer rand = new VectorRandomizer(map);
         Grass g_2_2 = new Grass(map, new Vector2d(2,2));
         Grass g_3_2 = new Grass(map, new Vector2d(3,2));

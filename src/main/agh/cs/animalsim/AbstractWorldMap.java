@@ -35,14 +35,6 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
     }
 
     @Override
-    public boolean canMoveTo(Vector2d position) {
-        if (!isOccupied(position)){
-            return true;
-        }
-        return objectAt(position).getCollisionPriority() < 1;
-    }
-
-    @Override
     public boolean canThisMoveTo(Vector2d position, IMapElement object) {
         if (!isOccupied(position)){
             return true;
@@ -74,7 +66,7 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         if (canThisMoveTo(position, object)) {
             object.registerPositionObserver(this);
             object.registerCollisionObserver(this);
-            object.registerDeathObserver(this);
+            object.registerLifeObserver(this);
             if (map.containsKey(position)) {
                 map.get(position).add(object);
             } else {
@@ -107,6 +99,9 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         return null;
     }
 
+    public Vector2d getDimensions(){
+        return upperRightCorner().subtract(lowerLeftCorner());
+    }
 
     @Override
     public void positionChanged(Vector2d oldPosition, IMapElement what) {

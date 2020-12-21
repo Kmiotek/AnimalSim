@@ -5,18 +5,17 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class HighlightManager extends JPanel implements ActionListener {
+public class HighlightManagementPanel extends JPanel implements ActionListener {
 
     protected JSpinner ticksSpinner;
     protected TropicSimulationEngine engine;
 
     JButton startStop;
 
-    public HighlightManager(TropicSimulationEngine engine){
-        SpinnerModel model =
-                new SpinnerNumberModel(500, 0, 1000000, 10);
-        ticksSpinner = addLabeledSpinner("How long do you want to run with this animal highlighted?", model);
-        ticksSpinner.setEditor(new JSpinner.NumberEditor(ticksSpinner, "#"));
+    public HighlightManagementPanel(TropicSimulationEngine engine){
+        ticksSpinner = addLabeledSpinner("How long do you want to run with this animal highlighted?",
+                new SpinnerNumberModel(500, 0, 1000000, 10),
+                "#");
 
         startStop = new JButton("Run simulation");
         startStop.setActionCommand("start");
@@ -30,15 +29,16 @@ public class HighlightManager extends JPanel implements ActionListener {
         setBackground(Color.BLUE);
     }
 
-    protected JSpinner addLabeledSpinner(String label, SpinnerModel model) {
-        JLabel l = new JLabel(label);
-        l.setForeground(Color.WHITE);
-        l.setFont(new Font("Arial", Font.PLAIN, 20));
-        this.add(l);
+    protected JSpinner addLabeledSpinner(String labelString, SpinnerModel model, String decimalFormatPattern) {
+        JLabel label = new JLabel(labelString);
+        label.setForeground(Color.WHITE);
+        label.setFont(new Font("Arial", Font.PLAIN, 20));
+        this.add(label);
 
         JSpinner spinner = new JSpinner(model);
         spinner.setFont(new Font("Arial", Font.PLAIN, 18));
-        l.setLabelFor(spinner);
+        spinner.setEditor(new JSpinner.NumberEditor(spinner, decimalFormatPattern));
+        label.setLabelFor(spinner);
         this.add(spinner);
 
         return spinner;
