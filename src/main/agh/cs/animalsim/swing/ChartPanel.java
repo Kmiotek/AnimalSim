@@ -65,7 +65,10 @@ public class ChartPanel extends JPanel implements ActionListener {
         highlightStatisticsPanel.setVisible(false);
         add(buttons);
         add(charts);
+    }
 
+    public ILifeObserver[] getLifeObservers(){
+        return new ILifeObserver[]{highlightStatisticsPanel};
     }
 
     private JButton addButton(String text, String command){

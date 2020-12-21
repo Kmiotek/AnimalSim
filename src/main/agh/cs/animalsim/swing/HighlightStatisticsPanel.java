@@ -73,7 +73,6 @@ public class HighlightStatisticsPanel extends JPanel implements ILifeObserver {
             chart.updatePieSeries("Herbivores", numberOfHerbivores((descendants)));
             repaint();
         }
-
     }
 
     private JPanel addText(String labelString, JLabel label){

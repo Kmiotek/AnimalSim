@@ -81,7 +81,12 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
         startMenuItemWrite.addActionListener(this);
         this.map = map;
 
-        simulatedObjectsManager = new SimulatedObjectsManager(map, statisticManager, grassPerTick);
+        simulatedObjectsManager = new SimulatedObjectsManager(map, grassPerTick);
+        simulatedObjectsManager.addLifeObserverForRegistering(statisticManager);
+        for (ILifeObserver observer : chartPanel.getLifeObservers()){
+            simulatedObjectsManager.addLifeObserverForRegistering(observer);
+        }
+
         for (int i =0;i<numberOfHerbivores;i++){
             simulatedObjectsManager.createAnimal(false, initialSize, initialSpeed, initialEnergy, meatQuality, moveEfficiency, 50, vision);
         }
