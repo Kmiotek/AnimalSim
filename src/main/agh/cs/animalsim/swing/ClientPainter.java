@@ -1,5 +1,6 @@
 package agh.cs.animalsim.swing;
 
+import agh.cs.animalsim.JsonManager;
 import agh.cs.animalsim.TropicMap;
 
 import javax.swing.*;
@@ -24,50 +25,52 @@ public class ClientPainter extends JPanel implements ActionListener {
 
     public ClientPainter(){
 
+        JsonManager jsonReader = new JsonManager("data.json");
+
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         sizeXSpinner = addLabeledSpinner("Map Width",
-                new SpinnerNumberModel(1600, 0, 10000, 10),
+                new SpinnerNumberModel(jsonReader.getInt("width"), 0, 10000, 10),
                 "#");
 
         sizeYSpinner = addLabeledSpinner("Map Height",
-                new SpinnerNumberModel(1800, 0, 10000, 10),
+                new SpinnerNumberModel(jsonReader.getInt("height"), 0, 10000, 10),
                 "#");
 
         numberOfAnimalsSpinner = addLabeledSpinner("Number of Herbivores",
-                new SpinnerNumberModel(10, 0, 1000, 1),
+                new SpinnerNumberModel(jsonReader.getInt("herbivores"), 0, 1000, 1),
                 "#");
 
         grassPerTickSpinner = addLabeledSpinner("Added Grass per Tick",
-                new SpinnerNumberModel(2, 0, 100, 0.01),
+                new SpinnerNumberModel(jsonReader.getDouble("grass_per_tick"), 0, 100, 0.01),
                 "#.##");
 
         energySpinner = addLabeledSpinner("Initial Energy",
-                new SpinnerNumberModel(50000, 0, 1000000, 10),
+                new SpinnerNumberModel(jsonReader.getInt("energy"), 0, 1000000, 10),
                 "#");
 
         sizeSpinner = addLabeledSpinner("Initial Size",
-                new SpinnerNumberModel(10, 0, 1000, 1),
+                new SpinnerNumberModel(jsonReader.getInt("size"), 0, 1000, 1),
                 "#");
 
         speedSpinner = addLabeledSpinner("Initial Speed",
-                new SpinnerNumberModel(10, 0, 1000, 1),
+                new SpinnerNumberModel(jsonReader.getInt("speed"), 0, 1000, 1),
                 "#");
 
         moveEfficiencySpinner = addLabeledSpinner("Move efficiency",
-                new SpinnerNumberModel(10, 0, 100, 1),
+                new SpinnerNumberModel(jsonReader.getInt("efficiency"), 0, 1000, 1),
                 "#");
 
         visionSpinner = addLabeledSpinner("Vision",
-                new SpinnerNumberModel(50, 0, 10000, 1),
+                new SpinnerNumberModel(jsonReader.getInt("vision"), 0, 10000, 1),
                 "#");
 
         meatQualitySpinner = addLabeledSpinner("Meat Quality",
-                new SpinnerNumberModel(2000, 0, 100000, 10),
+                new SpinnerNumberModel(jsonReader.getInt("meat_quality"), 0, 100000, 10),
                 "#");
 
         jungleSizeSpinner = addLabeledSpinner("Jungle-step ratio [%]",
-                new SpinnerNumberModel(25, 0, 50, 1),
+                new SpinnerNumberModel(jsonReader.getInt("jungle_ratio"), 0, 50, 1),
                 "#");
 
         start = new JButton("Start new simulation");

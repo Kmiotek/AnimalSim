@@ -28,7 +28,7 @@ public class HighlightStatisticsPanel extends JPanel implements ILifeObserver {
 
     public HighlightStatisticsPanel(TropicSimulationEngine engine){
         this.engine = engine;
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
         status = new JLabel("Alive");
         addText("Status:", status);
@@ -150,6 +150,6 @@ public class HighlightStatisticsPanel extends JPanel implements ILifeObserver {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(600, 750);
+        return new Dimension(600, 725);
     }
 }

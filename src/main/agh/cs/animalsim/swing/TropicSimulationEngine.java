@@ -20,6 +20,7 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
     private SimulatedObjectsManager simulatedObjectsManager;
     private JFrame frame;
     private HighlightManagementPanel highlightManager;
+    private StatisticManager statisticManager;
 
     private boolean paused = true;
     private boolean running = true;
@@ -31,13 +32,16 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
     private Animal highlighted = null;
     private int highlightedTimer = 0;
 
+
     public TropicSimulationEngine(TropicMap map, int numberOfHerbivores, int numberOfCarnivores, double grassPerTick,
-                                  int initialSize, int initialSpeed, int moveEfficiency, int initialEnergy, int meatQuality, int vision){
+                                  int initialSize, int initialSpeed, int moveEfficiency, int initialEnergy, int meatQuality,
+                                  int vision){
         painter = new TropicPainter(map);
         menuBar = new JMenuBar();
+        statisticManager = new StatisticManager(numberOfHerbivores, numberOfCarnivores, initialSize, initialSpeed);
 
         highlightManager = new HighlightManagementPanel(this);
-        chartPanel = new ChartPanel(numberOfHerbivores, numberOfCarnivores, this);
+        chartPanel = new ChartPanel(this, statisticManager);
 
         JMenu startMenu = new JMenu("Simulation");
         startMenu.setFont(new Font("Arial", Font.PLAIN, 18));
@@ -50,6 +54,8 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
         JMenuItem startMenuItemStop = new JMenuItem("Pause");
         startMenuItemStop.setFont(new Font("Arial", Font.PLAIN, 18));
         JMenuItem startMenuItemGo = new JMenuItem("Run");
+        startMenuItemGo.setFont(new Font("Arial", Font.PLAIN, 18));
+        JMenuItem startMenuItemWrite = new JMenuItem("Save state to file");
         startMenuItemGo.setFont(new Font("Arial", Font.PLAIN, 18));
 
         JSlider framesPerSecond = new JSlider(JSlider.HORIZONTAL, 5, 200, 30);
@@ -70,9 +76,12 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
         startMenu.add(startMenuItemGo);
         startMenuItemGo.setActionCommand("start");
         startMenuItemGo.addActionListener(this);
+        startMenu.add(startMenuItemWrite);
+        startMenuItemWrite.setActionCommand("write");
+        startMenuItemWrite.addActionListener(this);
         this.map = map;
 
-        simulatedObjectsManager = new SimulatedObjectsManager(map, chartPanel.getChartsAsObservers(), grassPerTick);
+        simulatedObjectsManager = new SimulatedObjectsManager(map, statisticManager, grassPerTick);
         for (int i =0;i<numberOfHerbivores;i++){
             simulatedObjectsManager.createAnimal(false, initialSize, initialSpeed, initialEnergy, meatQuality, moveEfficiency, 50, vision);
         }
@@ -130,6 +139,8 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
                 }
                 generation++;
                 simulatedObjectsManager.update();
+                if (generation % 10 == 0)
+                    chartPanel.update();
                 painter.repaint();
             }
 
@@ -167,6 +178,8 @@ public class TropicSimulationEngine implements Runnable, ActionListener, ChangeL
             paused = false;
             if (!runningWithHighlight)
                 disableHighlightManager();
+        } else if ("write".equals(e.getActionCommand())) {
+            statisticManager.saveToFile("simulationData.txt");
         }
     }
 

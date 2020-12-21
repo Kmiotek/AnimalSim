@@ -15,6 +15,11 @@ public class TropicMap extends AbstractWorldMap{
 
     }
 
+    @Override
+    protected Vector2d modifyPosition(Vector2d position){
+        return position.modulo(size);
+    }
+
     public Vector2d junglePos(){
         return new Vector2d((size.x - jungleSize.x) / 2, (size.y - jungleSize.y) / 2);
     }
@@ -22,10 +27,10 @@ public class TropicMap extends AbstractWorldMap{
     @Override
     public IMapElement objectAt(Vector2d position) {
         Set<IMapElement> set = map.get(position.modulo(size));
-        return objectIn(set);
+        return largestObjectIn(set);
     }
 
-    private IMapElement objectIn(Set<IMapElement> set){
+    private IMapElement largestObjectIn(Set<IMapElement> set){
         if (set == null){
             return null;
         }
@@ -68,35 +73,12 @@ public class TropicMap extends AbstractWorldMap{
     public Set<Drawable> getDrawableObjects(){
         Set<Drawable> ret = new HashSet<>();
         for(Set<IMapElement> el : map.values()){
-            IMapElement object = objectIn(el);
+            IMapElement object = largestObjectIn(el);
             ret.add(new Drawable(object.getPosition(), object.getColor(), object.getDrawingSize()));
         }
         return ret;
     }
 
-    @Override
-    public void positionChanged(Vector2d oldPosition1, IMapElement what) {
-        Vector2d oldPosition = oldPosition1.modulo(size);
-        Vector2d newPosition = what.getPosition().modulo(size);
-        Set<IMapElement> square = map.get(oldPosition);
-        if (square.size() < 2){
-            map.remove(oldPosition);
-            if (isOccupied(newPosition)){
-                map.get(newPosition).add(what);
-            } else {
-                map.put(newPosition, square);
-            }
-        } else {
-            square.remove(what);
-            if (isOccupied(newPosition)){
-                map.get(newPosition).add(what);
-            } else {
-                Set<IMapElement> newSquare = new HashSet<>();
-                newSquare.add(what);
-                map.put(newPosition, newSquare);
-            }
-        }
-    }
 
     @Override
     public void died(IMapElement object) {

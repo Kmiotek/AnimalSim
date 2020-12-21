@@ -27,6 +27,10 @@ public class Animal extends AbstractMapElement{
 
     private VectorRandomizer randomizer;
 
+    private int age = 0;
+
+    protected boolean parentsType;
+
 
     public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore, int speed, int size, int initialEnergy,
                   int meatQuality, float moveEfficiency, int chanceOfLooking){
@@ -46,7 +50,7 @@ public class Animal extends AbstractMapElement{
     }
 
     public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore){
-        this(map, initialPosition, carnivore, 10, 10, 50000, 3000, 10, 50);
+        this(map, initialPosition, carnivore, 1, 10, 50000, 3000, 10, 50);
     }
 
     public Animal(IWorldMap map, Vector2d initialPosition){
@@ -81,6 +85,18 @@ public class Animal extends AbstractMapElement{
 
     protected void addChild(Animal child){
         children.add(child);
+    }
+
+    public int getAge(){
+        return age;
+    }
+
+    public int getEnergy(){
+        return energy;
+    }
+
+    public boolean getParentsType(){
+        return parentsType;
     }
 
     @Override
@@ -212,7 +228,7 @@ public class Animal extends AbstractMapElement{
                 System.out.println("We're fu... fine?");
         }
         if (moveTo(newPosition))
-            energy -= size/moveEfficiency;
+            subtractEnergyForMovement(speed);
     }
 
     protected void moveBasedOnKnownInformation(){
@@ -241,7 +257,7 @@ public class Animal extends AbstractMapElement{
         double dist = distanceFrom(prey.getPosition());
         if (dist < speed){
             if (moveTo(prey.getPosition())){
-                energy -= dist*dist*size/moveEfficiency;
+                subtractEnergyForMovement(dist);
             }
         } else {
             move();
@@ -251,7 +267,7 @@ public class Animal extends AbstractMapElement{
     public void move(){
         Vector2d newPosition = position.add(direction.multiply(speed).approx());
         if (moveTo(newPosition))
-            energy -= speed*speed*size/moveEfficiency;
+            subtractEnergyForMovement(speed);
     }
 
     protected boolean moveTo(Vector2d newPosition){
@@ -266,6 +282,10 @@ public class Animal extends AbstractMapElement{
             return true;
         }
         return false;
+    }
+
+    protected void subtractEnergyForMovement(double length){
+        energy -= length*length*size*size/moveEfficiency;
     }
 
     private int interactWithObjectsOn(Vector2d newPosition){
@@ -288,12 +308,12 @@ public class Animal extends AbstractMapElement{
         energy -= vision;
         Set<Vector2d> set = mapThatImOn.getObjectsPositions();
         for (Vector2d pos : set) {
-            if(pos.equals(this.position)){
-                continue;
-            }
             double dist = distanceFrom(pos);
             if (dist < vision){
                 IMapElement mapElement = mapThatImOn.objectAt(pos);
+                if (mapElement == this){
+                    continue;
+                }
                 if (mapElement.isCarnivore() && mapElement.getCollisionPriority() >= size && !carnivore){
                     if (hunter == null || dist < distanceFrom(hunter.getPosition())) {
                         hunter = mapElement;
@@ -303,7 +323,8 @@ public class Animal extends AbstractMapElement{
                     if (prey == null || dist < distanceFrom(prey.getPosition())){
                         prey = mapElement;
                     }
-                } else if (mapElement instanceof TropicAnimal && mapElement.isCarnivore() == carnivore && isReadyToMate() && ((Animal)mapElement).isReadyToMate()){
+                } else if (mapElement instanceof TropicAnimal && mapElement.isCarnivore() == carnivore && isReadyToMate()
+                        && ((Animal)mapElement).isReadyToMate()){
                     if (mate == null || dist < distanceFrom(mate.getPosition())){
                         mate = (Animal)mapElement;
                     }
@@ -361,6 +382,7 @@ public class Animal extends AbstractMapElement{
         }
         TropicAnimal frog = new TropicAnimal(mapThatImOn, childPosition, willChildBeCarnivore, childSpeed, childSize,
                 initialEnergy, meatQuality, moveEfficiency, chanceOfLooking, vision);
+        frog.parentsType = carnivore;
         for (ILifeObserver observer : lifeObservers){
             observer.wasBorn(frog);
         }
@@ -378,6 +400,7 @@ public class Animal extends AbstractMapElement{
     @Override
     public void update(){
         if (energy > 0) {
+            age++;
             updateMemory();
             int actualChanceOfLooking = chanceOfLooking;
             if (prey != null || mate != null){

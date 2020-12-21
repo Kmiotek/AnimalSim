@@ -15,16 +15,16 @@ public class SimulatedObjectsManager implements ILifeObserver {
 
     private double doubleGrassPerTick;
 
-    ArrayList<ILifeObserver> observers;
+    ILifeObserver observer;
 
-    public SimulatedObjectsManager(TropicMap map, ArrayList<ILifeObserver> observers, double grassPerTick){
+    public SimulatedObjectsManager(TropicMap map, ILifeObserver observer, double grassPerTick){
         this.map = map;
         elementsForDeleting = new ArrayList<>();
         elementsForUpdating = new ArrayList<>();
         elementsForAdding = new ArrayList<>();
         randomizer = new VectorRandomizer(map);
         this.doubleGrassPerTick = grassPerTick/2;
-        this.observers = observers;
+        this.observer = observer;
     }
 
     public void createAnimal(boolean carnivore, int size, int speed, int initialEnergy, int meatQuality,
@@ -33,9 +33,7 @@ public class SimulatedObjectsManager implements ILifeObserver {
                 initialEnergy, meatQuality, moveEfficiency, chanceOfLooking, vision);
         elementsForUpdating.add(squirrel);
         squirrel.registerLifeObserver(this);
-        for (ILifeObserver observer : observers){
-            squirrel.registerLifeObserver(observer);
-        }
+        squirrel.registerLifeObserver(observer);
         map.place(squirrel);
     }
 
@@ -47,10 +45,8 @@ public class SimulatedObjectsManager implements ILifeObserver {
                 randomizer.randomVectorInRingStupid(map.lowerLeftCorner(), map.upperRightCorner(),
                         map.junglePos(), map.junglePos().add(map.jungleSize)),
                 nutrients);
-        for (ILifeObserver observer : observers){
-            observer.wasBorn(grass);
-            observer.wasBorn(grass2);
-        }
+        observer.wasBorn(grass);
+        observer.wasBorn(grass2);
         map.placeAnyObject(grass);
         map.placeAnyObject(grass2);
     }

@@ -1,0 +1,1 @@
+carnivores0.0children_herbivores0.0size10.0herbivores10.0lifespan0.0children_carnivores0.0speed10.0

@@ -1,50 +1,46 @@
 package agh.cs.animalsim.swing;
 
 import agh.cs.animalsim.ILifeObserver;
+import agh.cs.animalsim.StatisticManager;
+import agh.cs.animalsim.Vector2f;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.style.MatlabTheme;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-public abstract class Chart extends JPanel implements ILifeObserver{
+public class Chart extends JPanel {
     protected XYChart chart;
-    protected TropicSimulationEngine engine;
+    protected StatisticManager statisticManager;
+    private TropicSimulationEngine engine;
 
-    protected ArrayList<String> seriesNames;
-    protected ArrayList< ArrayList<Double> > seriesAxesX;
-    protected ArrayList< ArrayList<Double> > seriesAxesY;
+    protected Map< String, Data > data;
 
-    XChartPanel<XYChart> chartPane;
+    private XChartPanel<XYChart> chartPane;
 
-    String title;
-
-    public Chart(TropicSimulationEngine engine, String title, String[] seriesNames, double[][] initialDataX, double[][] initialDataY,
-                 int width, int height) {
-        seriesAxesX = new ArrayList<>();
-        seriesAxesY = new ArrayList<>();
-        this.seriesNames = new ArrayList<>();
-        this.title = title;
-        for (int series = 0; series < seriesNames.length; series++) {
-            ArrayList<Double> listX = new ArrayList<>();
-            ArrayList<Double> listY = new ArrayList<>();
-            for (int i =0;i<initialDataX[series].length;i++){
-                listX.add(initialDataX[series][i]);
-                listY.add(initialDataY[series][i]);
-            }
-            seriesAxesX.add(listX);
-            seriesAxesY.add(listY);
-            this.seriesNames.add(seriesNames[series]);
+    public Chart(TropicSimulationEngine engine, StatisticManager statisticManager, String title, String[] seriesNames,
+                 String[] seriesCommands, boolean[] disableable, Color[] colors, int width, int height) {
+        data = new HashMap<>();
+        chart = new XYChartBuilder().width(width).height(height).title(title).build();
+        for (int i =0;i<seriesNames.length;i++){
+            Data series = new Data();
+            series.dataX.add((double) engine.getGeneration());
+            series.dataY.add(statisticManager.getCurrentValueOf(seriesCommands[i]));
+            series.updateCommand = seriesCommands[i];
+            data.put(seriesNames[i], series);
+            chart.addSeries(seriesNames[i], series.dataX, series.dataY);
         }
-
+        this.statisticManager = statisticManager;
         this.engine = engine;
 
-        chart = new XYChartBuilder().width(width).height(height).title(title).build();
-        addToChart();
+        chart.getStyler().setSeriesColors(colors);
         chartPane = new XChartPanel<>(chart);
         add(chartPane);
-
     }
 
     public void enableSeries(String seriesName){
@@ -56,17 +52,13 @@ public abstract class Chart extends JPanel implements ILifeObserver{
     }
 
 
-    protected void addToChart(){
-        for (int i = 0; i < seriesNames.size(); i++) {
-            chart.addSeries(seriesNames.get(i), toPrimitive(seriesAxesX.get(i).toArray(new Double[0])),
-                    toPrimitive(seriesAxesY.get(i).toArray(new Double[0])));
-        }
-    }
-
-    protected void updateChart() {      // this is baaad
-        for (int i = 0; i < seriesNames.size(); i++) {
-            chart.updateXYSeries(seriesNames.get(i), toPrimitive(seriesAxesX.get(i).toArray(new Double[0])),
-                    toPrimitive(seriesAxesY.get(i).toArray(new Double[0])), null);
+    protected void updateChart() {
+        for (String series : data.keySet()){
+            Data seriesData = data.get(series);
+            seriesData.dataX.add((double) engine.getGeneration());
+            seriesData.dataY.add(statisticManager.getCurrentValueOf(seriesData.updateCommand));
+            chart.updateXYSeries(series, toPrimitive(seriesData.dataX.toArray(new Double[0])),
+                    toPrimitive(seriesData.dataY.toArray(new Double[0])), null);
         }
         chartPane.revalidate();
         repaint();

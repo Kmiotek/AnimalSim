@@ -105,25 +105,32 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
 
     @Override
     public void positionChanged(Vector2d oldPosition, IMapElement what) {
-        Set<IMapElement> square = map.get(oldPosition);
+        Vector2d oldPositionModified = modifyPosition(oldPosition);
+        Vector2d newPositionModified = modifyPosition(what.getPosition());
+        Set<IMapElement> square = map.get(oldPositionModified);
         if (square.size() < 2){
-            map.remove(oldPosition);
-            if (isOccupied(what.getPosition())){
-                map.get(what.getPosition()).add(what);
+            map.remove(oldPositionModified);
+            if (isOccupied(newPositionModified)){
+                map.get(newPositionModified).add(what);
             } else {
-                map.put(what.getPosition(), square);
+                map.put(newPositionModified, square);
             }
         } else {
-            map.get(oldPosition).remove(what);
-            if (isOccupied(what.getPosition())){
-                map.get(what.getPosition()).add(what);
+            map.get(oldPositionModified).remove(what);
+            if (isOccupied(newPositionModified)){
+                map.get(newPositionModified).add(what);
             } else {
                 Set<IMapElement> newSquare = new HashSet<>();
                 newSquare.add(what);
-                map.put(what.getPosition(), newSquare);
+                map.put(newPositionModified, newSquare);
             }
         }
     }
+
+    protected Vector2d modifyPosition(Vector2d position){
+        return position;
+    }
+
 
     @Override
     public void died(IMapElement object) {

@@ -2,8 +2,8 @@
   <library name="xchart-3.6.6">
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/xchart-3.6.6.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/junit-4.13.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/junit-jupiter-api-5.7.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/json-simple-1.1.1.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

@@ -1,0 +1,14 @@
+{
+  "width": 1600,
+  "height": 1800,
+  "herbivores": 10,
+  "carnivores": 0,
+  "grass_per_tick": 1.0,
+  "energy": 40000,
+  "size": 10,
+  "speed": 10,
+  "efficiency": 75,
+  "vision": 50,
+  "meat_quality": 7500,
+  "jungle_ratio": 25
+}

@@ -4,22 +4,22 @@ import java.awt.*;
 
 public class Grass extends AbstractMapElement{
 
-    protected VectorRandomizer randomer;
+    protected VectorRandomizer randomizer;
 
     protected int nutrients;
     private boolean alive = true;
 
     public Grass(IWorldMap map, Vector2d randomMiddlePosition, int range, int nutrients){
         super(map);
-        randomer = new VectorRandomizer(map);
-        this.position = randomer.randomVectorInRangeStupid(randomMiddlePosition.subtract(new Vector2d(range, range)),
+        randomizer = new VectorRandomizer(map);
+        this.position = randomizer.randomVectorInRangeStupid(randomMiddlePosition.subtract(new Vector2d(range, range)),
                 randomMiddlePosition.add(new Vector2d(range, range)));
         this.nutrients = nutrients;
     }
 
     public Grass(IWorldMap map, Vector2d position, int nutrients){
         super(map, position);
-        randomer = new VectorRandomizer(map);
+        randomizer = new VectorRandomizer(map);
         this.position = position;
         this.nutrients = nutrients;
     }

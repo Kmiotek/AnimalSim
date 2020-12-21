@@ -1,6 +1,7 @@
 package agh.cs.animalsim.swing;
 
 import agh.cs.animalsim.ILifeObserver;
+import agh.cs.animalsim.StatisticManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,49 +12,55 @@ import java.util.ArrayList;
 public class ChartPanel extends JPanel implements ActionListener {
     Chart numberChart;
     Chart traitsChart;
+    Chart lifespanChart;
+    Chart childrenChart;
 
     HighlightStatisticsPanel highlightStatisticsPanel;
-
-    JButton chart1;
-    JButton chart2;
-    JButton chart3;
 
     JPanel charts;
     JPanel buttons;
 
+    JButton highlightButton;
+
     int current = 1;
 
-    public ChartPanel(int numberOfHerbivores, int numberOfCarnivores, TropicSimulationEngine engine){
+    public ChartPanel(TropicSimulationEngine engine, StatisticManager statisticManager){
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        numberChart = new QuantityChart(engine, "Herbivores and carnivores", new double[]{numberOfHerbivores},
-                new double[]{numberOfCarnivores}, new double[]{0});
-        traitsChart = new TraitsChart(engine, "Average speed and size", new double[][]{new double[]{10}, new double[]{10}},
-                numberOfHerbivores+numberOfCarnivores);
+        numberChart = new Chart(engine, statisticManager, "Number of herbivores and carnivores",
+                new String[]{"Herbivores", "Carnivores"}, new String[]{"herbivores", "carnivores"},
+                new boolean[]{false, false}, new Color[]{Color.BLUE, Color.RED, Color.GREEN}, 600, 725);
+        traitsChart = new Chart(engine, statisticManager, "Average speed and size",
+                new String[]{"Size", "Speed"}, new String[]{"size", "speed"},
+                new boolean[]{false, false}, new Color[]{Color.RED, Color.BLUE}, 600, 725);
+        lifespanChart = new Chart(engine, statisticManager, "Average lifespan of dead animals",
+                new String[]{"Lifespan"}, new String[]{"lifespan"},
+                new boolean[]{false}, new Color[]{Color.BLACK}, 600, 725);
+        childrenChart = new Chart(engine, statisticManager, "Average number of children",
+                new String[]{"Herbivores", "Carnivores"}, new String[]{"children_herbivores", "children_carnivores"},
+                new boolean[]{false}, new Color[]{Color.BLUE, Color.RED}, 600, 725);
         highlightStatisticsPanel = new HighlightStatisticsPanel(engine);
 
-        buttons = new ButtonPanel();
-        chart1 = new JButton("Quantities");
-        chart1.setActionCommand("quantities");
-        chart1.addActionListener(this);
-        buttons.add(chart1);
+        buttons = new JPanel();
 
-        chart2 = new JButton("Traits");
-        chart2.setActionCommand("traits");
-        chart2.addActionListener(this);
-        buttons.add(chart2);
+        addButton("Quantities", "quantities");
+        addButton("Traits", "traits");
+        addButton("Lifespan", "lifespan");
+        addButton("Children", "children");
 
-        chart3 = new JButton("Highlighted");
-        chart3.setActionCommand("highlighted");
-        chart3.addActionListener(this);
-        chart3.setVisible(false);
-        buttons.add(chart3);
+        highlightButton = addButton("Highlighted", "highlighted");
+        highlightButton.setVisible(false);
 
         buttons.setBackground(Color.GRAY);
 
         charts = new JPanel();
         charts.add(numberChart);
         charts.add(traitsChart);
-        traitsChart.setVisible(false);
+        charts.add(lifespanChart);
+        charts.add(childrenChart);
+        for (Component comp : charts.getComponents()){
+            comp.setVisible(false);
+        }
+        numberChart.setVisible(true);
         charts.add(highlightStatisticsPanel);
         highlightStatisticsPanel.setVisible(false);
         add(buttons);
@@ -61,22 +68,29 @@ public class ChartPanel extends JPanel implements ActionListener {
 
     }
 
-    public ArrayList<ILifeObserver> getChartsAsObservers(){
-        ArrayList<ILifeObserver> ret = new ArrayList<>();
-        ret.add(numberChart);
-        ret.add(traitsChart);
-        ret.add(highlightStatisticsPanel);
-        return ret;
+    private JButton addButton(String text, String command){
+        JButton button = new JButton(text);
+        button.addActionListener(this);
+        button.setActionCommand(command);
+        buttons.add(button);
+        return button;
     }
 
     public void setHighlightPanelButtonVisible(){
-        chart3.setVisible(true);
+        highlightButton.setVisible(true);
         highlightStatisticsPanel.update();
     }
 
     public void setHighlightPanelButtonInvisible(){
-        chart3.setVisible(false);
+        highlightButton.setVisible(false);
         highlightStatisticsPanel.update();
+    }
+
+    public void update(){
+        numberChart.updateChart();
+        traitsChart.updateChart();
+        lifespanChart.updateChart();
+        childrenChart.updateChart();
     }
 
     @Override
@@ -105,6 +119,22 @@ public class ChartPanel extends JPanel implements ActionListener {
                 }
                 highlightStatisticsPanel.setVisible(true);
                 highlightStatisticsPanel.update();
+            }
+        } else if ("lifespan".equals(e.getActionCommand())){
+            if (current != 4){
+                current = 4;
+                for (Component comp : charts.getComponents()){
+                    comp.setVisible(false);
+                }
+                lifespanChart.setVisible(true);
+            }
+        } else if ("children".equals(e.getActionCommand())){
+            if (current != 5){
+                current = 5;
+                for (Component comp : charts.getComponents()){
+                    comp.setVisible(false);
+                }
+                childrenChart.setVisible(true);
             }
         }
     }
