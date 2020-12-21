@@ -1,30 +1,57 @@
 package agh.cs.animalsim.swing;
 
-import agh.cs.animalsim.IWorldMap;
-import agh.cs.animalsim.TropicMap;
+import agh.cs.animalsim.*;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.KeyEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Hashtable;
 
-public class TropicSimulationEngine  {
+public class TropicSimulationEngine implements Runnable, ActionListener, ChangeListener, IEngine, MouseListener {
     private final TropicPainter painter;
+    private ChartPanel chartPanel;
     private JMenuBar menuBar;
     private IWorldMap map;
+    private TropicSimulation updater;
+    private JFrame frame;
+    private HighlightManager manager;
 
-    public TropicSimulationEngine(TropicMap map, int numberOfHerbivores, int numberOfCarnivores, int amountOfGrass){
-        painter = new TropicPainter(map, numberOfHerbivores, numberOfCarnivores, amountOfGrass);
+    private boolean paused = true;
+    private boolean running = true;
+    private boolean timeBound = false;
+
+    private int timer = 0;
+
+    private int FPS = 30;
+    private int generation = 0;
+
+    private Animal highlighted = null;
+
+    public TropicSimulationEngine(TropicMap map, int numberOfHerbivores, int numberOfCarnivores, double grassPerTick,
+                                  int initialSize, int initialSpeed, int initialEnergy, int meatQuality, int vision){
+        painter = new TropicPainter(map);
         menuBar = new JMenuBar();
 
+        manager = new HighlightManager(this);
+        chartPanel = new ChartPanel(numberOfHerbivores, numberOfCarnivores, this);
+
         JMenu startMenu = new JMenu("Simulation");
+        startMenu.setFont(new Font("Arial", Font.PLAIN, 18));
         JMenu speedMenu = new JMenu("Speed");
+        speedMenu.setFont(new Font("Arial", Font.PLAIN, 18));
 
         menuBar.add(startMenu);
         menuBar.add(speedMenu);
 
         JMenuItem startMenuItemStop = new JMenuItem("Pause");
+        startMenuItemStop.setFont(new Font("Arial", Font.PLAIN, 18));
         JMenuItem startMenuItemGo = new JMenuItem("Run");
+        startMenuItemGo.setFont(new Font("Arial", Font.PLAIN, 18));
 
         JSlider framesPerSecond = new JSlider(JSlider.HORIZONTAL, 5, 200, 30);
         Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
@@ -35,34 +62,182 @@ public class TropicSimulationEngine  {
         labelTable.put(200, new JLabel("200") );
         framesPerSecond.setLabelTable( labelTable );
         framesPerSecond.setPaintLabels(true);
-        framesPerSecond.addChangeListener(painter);
+        framesPerSecond.addChangeListener(this);
 
         speedMenu.add(framesPerSecond);
         startMenu.add(startMenuItemStop);
         startMenuItemStop.setActionCommand("stop");
-        startMenuItemStop.addActionListener(painter);
+        startMenuItemStop.addActionListener(this);
         startMenu.add(startMenuItemGo);
         startMenuItemGo.setActionCommand("start");
-        startMenuItemGo.addActionListener(painter);
+        startMenuItemGo.addActionListener(this);
         this.map = map;
+
+        updater = new TropicSimulation(map, chartPanel.getChartsAsObservers(), grassPerTick);
+        for (int i =0;i<numberOfHerbivores;i++){
+            updater.createAnimal(false, initialSize, initialSpeed, initialEnergy, meatQuality, 10, 50, vision);
+        }
+        for (int i =0;i<numberOfCarnivores;i++){
+            updater.createAnimal(true, initialSize, initialSpeed, initialEnergy, meatQuality, 10, 60, vision);
+        }
     }
 
+    @Override
     public void start(){
-        painter.setLowerLeft(map.lowerLeftCorner());
-        painter.setUpperRight(map.upperRightCorner());
-        JFrame f=new JFrame("Evolution");
-        f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        f.setLayout(new BorderLayout());
-        f.setSize(map.upperRightCorner().x-map.lowerLeftCorner().x + 130,
-                map.upperRightCorner().y-map.lowerLeftCorner().y + 150 + 20);
-        f.add(painter);
+        frame =new JFrame("Evolution");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+        frame.setSize(1600,
+                900);
 
-        f.setJMenuBar(menuBar);
-        f.setLocationRelativeTo(null);
+        frame.add(painter, BorderLayout.CENTER);
+        frame.add(chartPanel, BorderLayout.LINE_START);
+        frame.add(manager, BorderLayout.PAGE_END);
+        manager.setVisible(false);
 
-        f.setVisible(true);
+        frame.setJMenuBar(menuBar);
+        frame.setLocationRelativeTo(null);
+
+        frame.setVisible(true);
+
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+                                    @Override
+                                    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                                        super.windowClosing(windowEvent);
+                                        running = false;
+                                    }
+                                });
+
+        painter.addMouseListener(this);
+
+        Thread animator = new Thread(this);
+        animator.start();
+    }
+
+    private void disableManager(){
+        manager.setVisible(false);
+    }
+
+    @Override
+    public void run() {
+        long beforeTime, timeDiff, sleep;
+
+        beforeTime = System.currentTimeMillis();
+
+        while (running) {
+
+            if (!paused) {
+                if (timeBound){
+                    timer--;
+                    if (timer < 0){
+                        manager.actionPerformed(new ActionEvent(this, 99, "stop"));
+                    }
+                }
+                generation++;
+                updater.update();
+            }
+            painter.repaint();
+
+            timeDiff = System.currentTimeMillis() - beforeTime;
+            int DELAY = 1000/FPS;
+            sleep = DELAY - timeDiff;
+
+            if (sleep < 0) {
+                sleep = 2;
+            }
+
+            try {
+                Thread.sleep(sleep);
+            } catch (InterruptedException e) {
+
+
+                String msg = String.format("Thread interrupted: %s", e.getMessage());
+
+                JOptionPane.showMessageDialog(painter, msg, "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+
+            beforeTime = System.currentTimeMillis();
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if ("stop".equals(e.getActionCommand())) {
+            paused = true;
+        } else if ("start".equals(e.getActionCommand())) {
+            paused = false;
+        }
     }
 
 
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        JSlider source = (JSlider)e.getSource();
+        if (!source.getValueIsAdjusting()) {
+            FPS = source.getValue();
+        }
+    }
 
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        if (timeBound){
+            return;
+        }
+        Animal h = map.animalClosestTo(painter.getMapPosition(new Vector2d(e.getX(), e.getY())));
+        if (highlighted != null) {
+            highlighted.setHighlighted(false);
+        }
+        highlighted = h;
+        if (highlighted != null) {
+            highlighted.setHighlighted(true);
+            if (paused) {
+                manager.setVisible(true);
+            }
+            chartPanel.setHighlightPanelVisible();
+        } else {
+            disableManager();
+            chartPanel.setHighlightPanelInvisible();
+        }
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
+    }
+
+    public void startHighlightedSimulation(int ticks){
+        timeBound = true;
+        timer = ticks;
+        paused = false;
+    }
+
+    public void stopHighlightedSimulation(){
+        timeBound = false;
+        paused = true;
+    }
+
+    public int getGeneration(){
+        return generation;
+    }
+
+    public Animal getHighlighted(){
+        return highlighted;
+    }
 }

@@ -28,11 +28,19 @@ public interface IMapElement {
 
     Color getColor();
 
-    boolean isAlive();
+    boolean isDead();
 
     boolean isCarnivore();
 
     boolean isGrassy();
+
+    boolean isReadyToMate();
+
+    void setHighlighted(boolean h);
+
+    int getSpeed();
+
+    int getSize();
 
     void go();
 }

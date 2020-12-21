@@ -24,7 +24,7 @@ public class SimulationEngine implements IEngine{
     }
 
     @Override
-    public void run() {
+    public void start() {
         int currentAnimal = 0;
         if(moves == null){
             return;

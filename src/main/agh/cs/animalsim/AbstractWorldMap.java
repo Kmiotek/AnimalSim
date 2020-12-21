@@ -95,26 +95,6 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
         throw new IllegalArgumentException("Position " + object.getPosition() + " is not available");
     }
 
-    /*@Override
-    public ArrayList<ObjectVisualization> getVisualization() {
-        for(Vector2d position : map.){
-            IMapElement object = map.objectAt(position);
-            if (object instanceof Animal){
-                if(object.isCarnivore()) {
-                    g.setColor(Color.RED);
-                } else {
-                    g.setColor(brown);
-                }
-            } else if (object instanceof Grass){
-                g.setColor(Color.GREEN);
-            }
-            int size = object.getDrawingSize();
-            Vector2d newPos = object.getPosition().modulo(map.upperRightCorner());
-            g.fillOval(newPos.x - size/2 - lowerLeft.x + 50,
-                    newPos.y - size/2 - lowerLeft.y + 50, size, size);
-        }
-    }*/
-
     public String toString(){
         return myVisualizer.draw(lowerLeftCorner(), upperRightCorner());
     }
@@ -125,11 +105,6 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
 
     public Vector2d upperRightCorner(){
         return null;
-    }
-
-    @Override
-    public void getVisualization(){
-
     }
 
 
@@ -178,5 +153,20 @@ public abstract class AbstractWorldMap implements IWorldMap, IPositionChangeObse
             }
         }
         return names.size();
+    }
+
+    @Override
+    public Animal animalClosestTo(Vector2d position){
+        double minDist = upperRightCorner().dist(lowerLeftCorner());
+        Animal current = null;
+        for (Vector2d v : map.keySet()){
+            double dist = v.dist(position);
+            IMapElement obj = objectAt(v);
+            if (dist < minDist && obj instanceof Animal && dist < obj.getSize()*8){
+                minDist = dist;
+                current = (Animal) obj;
+            }
+        }
+        return current;
     }
 }

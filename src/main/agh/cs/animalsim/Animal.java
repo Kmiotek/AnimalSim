@@ -1,38 +1,47 @@
 package agh.cs.animalsim;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Animal extends AbstractMapElement{
     protected Vector2f direction;
     protected int energy;
+    protected int initialEnergy;
+    protected float moveEfficiency; // higher -> less energy spent on moving
+    protected int meatQuality; // higher -> carnivores get more energy from eating this
     protected int speed;
     protected int vision;
     protected int alertness; // higher -> checks surroundings more often, max 100
     protected double turnPreference;
     protected final boolean carnivore;
+    protected int chanceOfLooking; // unit -> [%]
 
     protected IMapElement prey;
     protected IMapElement hunter;
+    protected IMapElement mate;
+
+    protected ArrayList<Animal> children;
 
 
-
-    public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore, int speed, int size){
+    public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore, int speed, int size, int initialEnergy,
+                  int meatQuality, float moveEfficiency, int chanceOfLooking){
         super(map, initialPosition);
         direction = new Vector2f(0, 1);
         this.carnivore = carnivore;
-        energy = 50000;
+        energy = initialEnergy;
         vision = 50;
         this.speed = speed;
         this.size = size;
-    }
-
-    public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore, int speed){
-        this(map, initialPosition, carnivore, speed, 10);
+        this.initialEnergy = initialEnergy;
+        this.meatQuality = meatQuality;
+        this.moveEfficiency = moveEfficiency;
+        this.chanceOfLooking = chanceOfLooking;
+        children = new ArrayList<>();
     }
 
     public Animal(IWorldMap map, Vector2d initialPosition, boolean carnivore){
-        this(map, initialPosition, carnivore, 10);
+        this(map, initialPosition, carnivore, 10, 10, 50000, 3000, 10, 50);
     }
 
     public Animal(IWorldMap map, Vector2d initialPosition){
@@ -60,8 +69,8 @@ public class Animal extends AbstractMapElement{
     @Override
     public int collisionWithCarnivore(){
         died();
-        int result = 3000 * size;
-        energy = 0;
+        int result = meatQuality * size;
+        energy = -initialEnergy;
         return result;
     }
 
@@ -119,19 +128,22 @@ public class Animal extends AbstractMapElement{
                 System.out.println("We're fu... fine?");
         }
         if (moveTo(newPosition))
-            energy -= size;
+            energy -= size/moveEfficiency;
     }
 
     public void speedMove(){
         Vector2d newPosition = position.add(direction.multiply(speed).approx());
         if (moveTo(newPosition))
-            energy -= speed*speed*size/10;
+            energy -= speed*speed*size/moveEfficiency;
     }
 
     protected boolean moveTo(Vector2d newPosition){
         if(mapThatImOn.canThisMoveTo(newPosition, this)) {
             Vector2d oldPosition = position;
             energy += callCollisionsOn(newPosition);
+            if (energy > 7*initialEnergy){
+                energy = 7*initialEnergy;
+            }
             position = newPosition;
             moved(oldPosition);
             return true;
@@ -155,15 +167,25 @@ public class Animal extends AbstractMapElement{
 
     @Override
     public int getDrawingSize(){
+        if (highlighted){
+            return size*4;
+        }
         return size;
     }
 
     @Override
     public Color getColor() {
         if (carnivore){
-            return Color.RED;
+            return new Color(255, (int)Math.max(0, Math.min(200, 200*(1 - energy/(float)(initialEnergy*2)))),
+                    (int)Math.max(0, Math.min(200, 200*(1 - energy/(float)(initialEnergy*2)))));
         }
-        return Color.CYAN;
+        return new Color((int)Math.max(0, Math.min(200, 200*(1 - energy/(float)(initialEnergy*2)))),
+                (int)Math.max(0, Math.min(200, 200*(1 - energy/(float)(initialEnergy*2)))),
+                255);
+        //return new Color((int)Math.max(0, 200*(1 - energy/(float)(initialEnergy*2))),
+         //       (int)(200 + Math.max(0, 30*(1 - energy/(float)(initialEnergy*2)))),
+       //         (int)(170 + Math.max(0, 60*(1 - energy/(float)(initialEnergy*2)))));
+        // this color is nicer but when i use it differences between animals with high and those with low energy become impossible to spot
     }
 
     public boolean isCarnivore(){
@@ -191,6 +213,8 @@ public class Animal extends AbstractMapElement{
     protected void updateDirection(){
         if (hunter != null){
             runFrom(hunter.getPosition());
+        } else if (mate != null){
+            goInDirection(mate.getPosition());
         } else if (prey != null){
             goInDirection(prey.getPosition());
         } else {
@@ -208,39 +232,54 @@ public class Animal extends AbstractMapElement{
     }
 
     @Override
-    public boolean isAlive(){
-        return energy > 0;
+    public boolean isDead(){
+        return energy <= 0;
+    }
+
+    @Override
+    public boolean isReadyToMate(){
+        return energy > initialEnergy * 2;
     }
 
     @Override
     public void go(){
         if (energy > 0) {
             updateMemory();
-            if (ThreadLocalRandom.current().nextInt(0, 100) > 50){
+            int actualChanceOfLooking = chanceOfLooking;
+            if (prey != null || mate != null){
+                actualChanceOfLooking/=2;
+            }
+            if (ThreadLocalRandom.current().nextInt(0, 100) < actualChanceOfLooking){
                 see();
             }
             updateDirection();
             makeAMove();
             if (energy <= 0){
                 died();
-            } else if (energy > 100000){
-                makeAClone();
             }
         }
     }
 
-
-    public void mate(Animal other){
-
+    public ArrayList<Animal> getChildren(){
+        return children;
     }
 
-    public void makeAClone(){
+    public void addChild(Animal child){
+        children.add(child);
+    }
+
+    public void mateWith(Animal other){
         Animal frog = new Animal(mapThatImOn);
-        for(ILifeObserver observer : deathObservers){
+        for (ILifeObserver observer : lifeObservers){
             observer.wasBorn(frog);
         }
-        energy-=50000;
+        addChild(frog);
+        other.addChild(frog);
+        energy-=initialEnergy;
     }
 
-
+    @Override
+    public int getSpeed(){
+        return speed;
+    }
 }

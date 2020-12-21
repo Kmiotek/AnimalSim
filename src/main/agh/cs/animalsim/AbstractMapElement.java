@@ -9,13 +9,14 @@ public abstract class AbstractMapElement implements IMapElement{
     protected IWorldMap mapThatImOn;
     protected ArrayList<IPositionChangeObserver> positionObservers;
     protected ArrayList<ICollisionObserver> collisionObservers;
-    protected ArrayList<ILifeObserver> deathObservers;
+    protected ArrayList<ILifeObserver> lifeObservers;
     protected int size;
+    protected boolean highlighted = false;
 
     public AbstractMapElement(IWorldMap map, Vector2d initialPosition){
         positionObservers = new ArrayList<>();
         collisionObservers = new ArrayList<>();
-        deathObservers = new ArrayList<>();
+        lifeObservers = new ArrayList<>();
         mapThatImOn = map;
         position = new Vector2d(initialPosition);
         size = 1;
@@ -47,7 +48,6 @@ public abstract class AbstractMapElement implements IMapElement{
 
     @Override
     public int collisionWithCarnivore() {
-        System.out.println("to");
         return 0;
     }
 
@@ -70,18 +70,19 @@ public abstract class AbstractMapElement implements IMapElement{
 
     @Override
     public void registerDeathObserver(ILifeObserver observer){
-        this.deathObservers.add(observer);
+        this.lifeObservers.add(observer);
     }
 
     @Override
     public void died(){
-        for(ILifeObserver observer : deathObservers){
+        for(ILifeObserver observer : lifeObservers){
             observer.died(this);
         }
     }
 
-    public boolean isAlive(){
-        return true;
+
+    public boolean isDead(){
+        return false;
     }
 
     @Override
@@ -97,6 +98,26 @@ public abstract class AbstractMapElement implements IMapElement{
     @Override
     public boolean isGrassy() {
         return false;
+    }
+
+    @Override
+    public boolean isReadyToMate() {
+        return false;
+    }
+
+    @Override
+    public int getSpeed(){
+        return 0;
+    }
+
+    @Override
+    public int getSize(){
+        return size;
+    }
+
+    @Override
+    public void setHighlighted(boolean h){
+        highlighted = h;
     }
 
     @Override

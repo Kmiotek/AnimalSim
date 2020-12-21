@@ -42,8 +42,6 @@ public interface IWorldMap {
 
     boolean placeAnyObject(IMapElement object);
 
-    void getVisualization();
-
     /**
      * Return true if given position on the map is occupied. Should not be
      * confused with canMove since there might be empty positions where the animal
@@ -65,4 +63,6 @@ public interface IWorldMap {
     IMapElement objectAt(Vector2d position);
 
     Set<IMapElement> objectsAt(Vector2d position);
+
+    Animal animalClosestTo(Vector2d position);
 }
