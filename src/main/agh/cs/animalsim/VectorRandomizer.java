@@ -1,5 +1,5 @@
 package agh.cs.animalsim;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+//import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -41,7 +41,7 @@ public class VectorRandomizer {
     public Vector2d randomVectorInRingHalfSmart(Vector2d outerLowerLeft, Vector2d outerUpperRight,
                                              Vector2d innerLowerLeft, Vector2d innerUpperRight){
         double chanceForInnerPoint = Math.pow(innerLowerLeft.dist(innerUpperRight)/outerLowerLeft.dist(outerUpperRight),2);
-        throw new NotImplementedException();
+        return null;
         // TODO maybe do this?
     }
 
