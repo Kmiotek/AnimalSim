@@ -46,7 +46,7 @@ It is also possible to highlight specific animal by clicling on it. It enables a
 - Descendant type (carnivores/herbivores, visualised with pie chart)
 
 ![image](https://user-images.githubusercontent.com/62559404/159937049-44a70481-c84f-42ff-ad49-b0cf14c340bd.png)
-Additional option for highlighted animal (highlighted animal is enlarged on a map)
+Additional options for highlighted animal (highlighted animal is enlarged on a map)
 
 
 Simulation can be paused and resumed at any moment, and simulation speed can be adjusted (from 5 udpates fer second to 200).
